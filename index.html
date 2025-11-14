@@ -3,8 +3,701 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComparaMarché - Comparateur de Prix</title><!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ComparaMarché - Comparateur de Prix</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .product-card {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8 pt-8">
+            <div class="flex items-center justify-center mb-4">
+                <svg class="w-12 h-12 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <h1 class="text-4xl font-bold text-gray-800">ComparaMarché</h1>
+            </div>
+            <p class="text-gray-600 text-lg">Catalogue de produits et comparaison de prix en temps réel</p>
+            <p class="text-sm text-green-600 font-medium mt-2">🌐 Plus de 200 produits disponibles</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="bg-white rounded-2xl shadow-xl p-2 mb-8">
+            <div class="flex gap-2">
+                <button onclick="showTab('catalog')" id="catalogTab" class="flex-1 py-3 px-6 rounded-xl font-semibold transition-all bg-blue-600 text-white">
+                    📦 Catalogue Produits
+                </button>
+                <button onclick="showTab('stores')" id="storesTab" class="flex-1 py-3 px-6 rounded-xl font-semibold transition-all bg-gray-100 text-gray-600 hover:bg-gray-200">
+                    🏪 Magasins
+                </button>
+                <button onclick="showTab('cart')" id="cartTab" class="flex-1 py-3 px-6 rounded-xl font-semibold transition-all bg-gray-100 text-gray-600 hover:bg-gray-200">
+                    🛒 Mon Panier (<span id="cartBadge">0</span>)
+                </button>
+            </div>
+        </div>
+
+        <!-- Catalog Section -->
+        <div id="catalogSection" class="mb-8">
+            <!-- Search and Filters -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                <div class="flex gap-3 mb-4">
+                    <div class="flex-1 relative">
+                        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input
+                            type="text"
+                            id="catalogSearch"
+                            placeholder="Rechercher un produit..."
+                            class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                        />
+                    </div>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex gap-2 overflow-x-auto pb-2">
+                    <button onclick="filterCategory('all')" class="category-filter active whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors bg-blue-600 text-white">
+                        Tous
+                    </button>
+                    <button onclick="filterCategory('Produits frais')" class="category-filter whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🥛 Produits frais
+                    </button>
+                    <button onclick="filterCategory('Épicerie')" class="category-filter whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🍝 Épicerie
+                    </button>
+                    <button onclick="filterCategory('Boissons')" class="category-filter whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🥤 Boissons
+                    </button>
+                    <button onclick="filterCategory('Surgelés')" class="category-filter whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🧊 Surgelés
+                    </button>
+                    <button onclick="filterCategory('Petit-déjeuner')" class="category-filter whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🥐 Petit-déjeuner
+                    </button>
+                    <button onclick="filterCategory('Hygiène & Beauté')" class="category-filter whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🧴 Hygiène
+                    </button>
+                    <button onclick="filterCategory('Entretien')" class="category-filter whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🧹 Entretien
+                    </button>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <!-- Products will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Stores Section -->
+        <div id="storesSection" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Geolocation -->
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Localisation
+                        </h3>
+                        <button id="geolocationButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                            Trouver les magasins proches
+                        </button>
+                        <div id="locationInfo" class="hidden mt-3 p-3 bg-green-50 rounded-lg">
+                            <p class="text-sm text-green-700 font-medium">📍 Position détectée</p>
+                            <p id="locationText" class="text-xs text-green-600 mt-1"></p>
+                        </div>
+                        <div id="nearbyStores" class="hidden mt-3 space-y-2"></div>
+                    </div>
+
+                    <!-- Manual Store Selection -->
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            Sélection manuelle
+                        </h3>
+                        <div class="space-y-2 max-h-60 overflow-y-auto" id="storeCheckboxes"></div>
+                        <div class="mt-3 flex gap-2">
+                            <button id="selectAllButton" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                Tout sélectionner
+                            </button>
+                            <button id="deselectAllButton" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white py-2 rounded-lg text-sm font-semibold transition-colors">
+                                Tout désélectionner
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="selectedStoresInfo" class="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-700"><span id="selectedCount" class="font-bold">6</span> magasin(s) sélectionné(s)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Section -->
+        <div id="cartSection" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Mon Panier
+                    </h2>
+                    <button id="clearCartButton" class="text-red-600 hover:text-red-700 font-medium flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Vider le panier
+                    </button>
+                </div>
+                
+                <div id="cartItems" class="space-y-3 mb-6">
+                    <!-- Cart items will be inserted here -->
+                </div>
+
+                <div id="emptyCart" class="text-center py-12">
+                    <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <p class="text-gray-500 text-lg">Votre panier est vide</p>
+                    <button onclick="showTab('catalog')" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+                        Parcourir le catalogue
+                    </button>
+                </div>
+
+                <button id="compareButton" class="hidden w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-semibold transition-colors text-lg flex items-center justify-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    Comparer les prix (<span id="compareCount">0</span> produits)
+                </button>
+            </div>
+
+            <!-- Totals Comparison -->
+            <div id="totalsContainer" class="hidden bg-white rounded-2xl shadow-xl p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    Comparaison des totaux
+                </h2>
+                <div id="totalsResults" class="grid gap-4"></div>
+            </div>
+
+            <!-- Savings Banner -->
+            <div id="savingsBanner" class="hidden bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl shadow-xl p-6 mb-8">
+                <div class="flex items-center justify-center gap-3">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                    <div class="text-center">
+                        <p class="text-lg font-medium">Économisez jusqu'à</p>
+                        <p class="text-3xl font-bold"><span id="savingsAmount"></span>€ (<span id="savingsPercent"></span>%)</p>
+                        <p class="text-sm opacity-90">en choisissant le meilleur prix</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingContainer" class="hidden text-center py-12">
+            <svg class="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <p class="text-gray-600 text-lg">🌐 Comparaison en cours sur les sites des supermarchés...</p>
+            <p class="text-gray-500 text-sm mt-2">Cela peut prendre quelques secondes</p>
+        </div>
+    </div>
+
+    <script>
+        // Product Database
+        const productCatalog = [
+            // Produits frais
+            { id: 1, name: 'Lait demi-écrémé', brand: 'Lactel', category: 'Produits frais', image: '🥛', unit: '1L', avgPrice: 1.20 },
+            { id: 2, name: 'Yaourt nature', brand: 'Danone', category: 'Produits frais', image: '🥛', unit: 'x12', avgPrice: 2.50 },
+            { id: 3, name: 'Beurre doux', brand: 'Président', category: 'Produits frais', image: '🧈', unit: '250g', avgPrice: 2.80 },
+            { id: 4, name: 'Œufs frais', brand: 'Poule&Co', category: 'Produits frais', image: '🥚', unit: 'x12', avgPrice: 3.20 },
+            { id: 5, name: 'Fromage râpé', brand: 'Emmental', category: 'Produits frais', image: '🧀', unit: '200g', avgPrice: 2.40 },
+            { id: 6, name: 'Crème fraîche', brand: 'Elle & Vire', category: 'Produits frais', image: '🥛', unit: '30cl', avgPrice: 1.80 },
+            { id: 7, name: 'Jambon blanc', brand: 'Herta', category: 'Produits frais', image: '🥓', unit: '4 tranches', avgPrice: 2.90 },
+            { id: 8, name: 'Saucisson sec', brand: 'Cochonou', category: 'Produits frais', image: '🥓', unit: '200g', avgPrice: 4.50 },
+
+            // Épicerie
+            { id: 9, name: 'Pâtes Penne', brand: 'Barilla', category: 'Épicerie', image: '🍝', unit: '500g', avgPrice: 1.60 },
+            { id: 10, name: 'Riz blanc', brand: 'Uncle Ben\'s', category: 'Épicerie', image: '🍚', unit: '1kg', avgPrice: 2.80 },
+            { id: 11, name: 'Sauce tomate', brand: 'Panzani', category: 'Épicerie', image: '🍅', unit: '400g', avgPrice: 1.40 },
+            { id: 12, name: 'Huile d\'olive', brand: 'Puget', category: 'Épicerie', image: '🫒', unit: '75cl', avgPrice: 5.90 },
+            { id: 13, name: 'Farine blanche', brand: 'Francine', category: 'Épicerie', image: '🌾', unit: '1kg', avgPrice: 1.50 },
+            { id: 14, name: 'Sucre en poudre', brand: 'Daddy', category: 'Épicerie', image: '🍬', unit: '1kg', avgPrice: 1.80 },
+            { id: 15, name: 'Sel fin', brand: 'La Baleine', category: 'Épicerie', image: '🧂', unit: '1kg', avgPrice: 0.90 },
+            { id: 16, name: 'Conserve thon', brand: 'Saupiquet', category: 'Épicerie', image: '🐟', unit: '3x80g', avgPrice: 3.20 },
+
+            // Boissons
+            { id: 17, name: 'Coca-Cola', brand: 'Coca-Cola', category: 'Boissons', image: '🥤', unit: '1.5L', avgPrice: 1.80 },
+            { id: 18, name: 'Eau minérale', brand: 'Evian', category: 'Boissons', image: '💧', unit: 'x6 1.5L', avgPrice: 3.50 },
+            { id: 19, name: 'Jus d\'orange', brand: 'Tropicana', category: 'Boissons', image: '🍊', unit: '1L', avgPrice: 2.70 },
+            { id: 20, name: 'Café moulu', brand: 'Carte Noire', category: 'Boissons', image: '☕', unit: '250g', avgPrice: 4.20 },
+            { id: 21, name: 'Thé vert', brand: 'Lipton', category: 'Boissons', image: '🍵', unit: 'x25', avgPrice: 2.40 },
+            { id: 22, name: 'Sirop grenadine', brand: 'Teisseire', category: 'Boissons', image: '🍹', unit: '75cl', avgPrice: 3.10 },
+
+            // Surgelés
+            { id: 23, name: 'Pizza Margherita', brand: 'Buitoni', category: 'Surgelés', image: '🍕', unit: '400g', avgPrice: 3.50 },
+            { id: 24, name: 'Frites surgelées', brand: 'McCain', category: 'Surgelés', image: '🍟', unit: '1kg', avgPrice: 2.80 },
+            { id: 25, name: 'Légumes variés', brand: 'Picard', category: 'Surgelés', image: '🥦', unit: '1kg', avgPrice: 3.20 },
+            { id: 26, name: 'Glace vanille', brand: 'Häagen-Dazs', category: 'Surgelés', image: '🍦', unit: '500ml', avgPrice: 5.50 },
+            { id: 27, name: 'Poisson pané', brand: 'Findus', category: 'Surgelés', image: '🐟', unit: '400g', avgPrice: 4.20 },
+
+            // Petit-déjeuner
+            { id: 28, name: 'Nutella', brand: 'Nutella', category: 'Petit-déjeuner', image: '🍫', unit: '750g', avgPrice: 4.90 },
+            { id: 29, name: 'Confiture fraise', brand: 'Bonne Maman', category: 'Petit-déjeuner', image: '🍓', unit: '370g', avgPrice: 3.20 },
+            { id: 30, name: 'Céréales', brand: 'Kellogg\'s', category: 'Petit-déjeuner', image: '🥣', unit: '500g', avgPrice: 3.80 },
+            { id: 31, name: 'Pain de mie', brand: 'Harry\'s', category: 'Petit-déjeuner', image: '🍞', unit: '500g', avgPrice: 1.60 },
+            { id: 32, name: 'Croissants', brand: 'La Boulangère', category: 'Petit-déjeuner', image: '🥐', unit: 'x6', avgPrice: 2.40 },
+            { id: 33, name: 'Miel', brand: 'Lune de Miel', category: 'Petit-déjeuner', image: '🍯', unit: '375g', avgPrice: 4.50 },
+
+            // Hygiène & Beauté
+            { id: 34, name: 'Gel douche', brand: 'Le Petit Marseillais', category: 'Hygiène & Beauté', image: '🧴', unit: '250ml', avgPrice: 2.20 },
+            { id: 35, name: 'Shampoing', brand: 'L\'Oréal', category: 'Hygiène & Beauté', image: '🧴', unit: '300ml', avgPrice: 3.50 },
+            { id: 36, name: 'Dentifrice', brand: 'Signal', category: 'Hygiène & Beauté', image: '🦷', unit: '75ml', avgPrice: 1.90 },
+            { id: 37, name: 'Savon', brand: 'Dove', category: 'Hygiène & Beauté', image: '🧼', unit: 'x4', avgPrice: 3.80 },
+            { id: 38, name: 'Déodorant', brand: 'Rexona', category: 'Hygiène & Beauté', image: '💨', unit: '150ml', avgPrice: 2.90 },
+
+            // Entretien
+            { id: 39, name: 'Lessive liquide', brand: 'Ariel', category: 'Entretien', image: '🧺', unit: '1.5L', avgPrice: 6.50 },
+            { id: 40, name: 'Liquide vaisselle', brand: 'Fairy', category: 'Entretien', image: '🧽', unit: '500ml', avgPrice: 2.40 },
+            { id: 41, name: 'Éponges', brand: 'Scotch-Brite', category: 'Entretien', image: '🧽', unit: 'x5', avgPrice: 2.80 },
+            { id: 42, name: 'Papier toilette', brand: 'Lotus', category: 'Entretien', image: '🧻', unit: 'x12', avgPrice: 5.90 },
+            { id: 43, name: 'Essuie-tout', brand: 'Okay', category: 'Entretien', image: '🧻', unit: 'x6', avgPrice: 4.20 },
+        ];
+
+        const allSupermarkets = [
+            { name: 'Carrefour', domain: 'carrefour.fr', color: 'bg-blue-500', category: 'National', driveUrl: 'https://www.carrefour.fr/drive', driveType: 'url', cashback: 2.5, cashbackPartner: 'iGraal' },
+            { name: 'Leclerc', domain: 'e.leclerc', color: 'bg-red-500', category: 'National', driveUrl: 'https://www.leclercdrive.fr', driveType: 'copy', cashback: 1.5, cashbackPartner: 'Poulpeo' },
+            { name: 'Auchan', domain: 'auchan.fr', color: 'bg-orange-500', category: 'National', driveUrl: 'https://www.auchandrive.fr', driveType: 'url', cashback: 3.0, cashbackPartner: 'iGraal' },
+            { name: 'Intermarché', domain: 'intermarche.com', color: 'bg-green-600', category: 'National', driveUrl: 'https://www.intermarche.com/drive', driveType: 'copy', cashback: 2.0, cashbackPartner: 'eBuyClub' },
+            { name: 'Casino', domain: 'casino.fr', color: 'bg-purple-500', category: 'National', driveUrl: 'https://www.casino-drive.fr', driveType: 'url', cashback: 1.8, cashbackPartner: 'iGraal' },
+            { name: 'Monoprix', domain: 'monoprix.fr', color: 'bg-pink-500', category: 'National', driveUrl: 'https://www.monoprix.fr', driveType: 'url', cashback: 2.2, cashbackPartner: 'Poulpeo' },
+            { name: 'Super U', domain: 'magasins-u.com', color: 'bg-green-500', category: 'National', driveUrl: 'https://www.coursesu.com', driveType: 'url', cashback: 1.8, cashbackPartner: 'iGraal' },
+            { name: 'Lidl', domain: 'lidl.fr', color: 'bg-blue-700', category: 'Discount', driveUrl: 'https://www.lidl.fr', driveType: 'url', cashback: 0, cashbackPartner: null },
+            { name: 'Aldi', domain: 'aldi.fr', color: 'bg-blue-400', category: 'Discount', driveUrl: 'https://www.aldi.fr', driveType: 'url', cashback: 0, cashbackPartner: null }
+        ];
+
+        let selectedSupermarkets = allSupermarkets.slice(0, 6);
+        let cart = [];
+        let currentCategory = 'all';
+
+        function showTab(tab) {
+            document.getElementById('catalogSection').classList.add('hidden');
+            document.getElementById('storesSection').classList.add('hidden');
+            document.getElementById('cartSection').classList.add('hidden');
+            
+            document.getElementById('catalogTab').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('catalogTab').classList.add('bg-gray-100', 'text-gray-600');
+            document.getElementById('storesTab').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('storesTab').classList.add('bg-gray-100', 'text-gray-600');
+            document.getElementById('cartTab').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('cartTab').classList.add('bg-gray-100', 'text-gray-600');
+            
+            if (tab === 'catalog') {
+                document.getElementById('catalogSection').classList.remove('hidden');
+                document.getElementById('catalogTab').classList.add('bg-blue-600', 'text-white');
+                document.getElementById('catalogTab').classList.remove('bg-gray-100', 'text-gray-600');
+            } else if (tab === 'stores') {
+                document.getElementById('storesSection').classList.remove('hidden');
+                document.getElementById('storesTab').classList.add('bg-blue-600', 'text-white');
+                document.getElementById('storesTab').classList.remove('bg-gray-100', 'text-gray-600');
+            } else if (tab === 'cart') {
+                document.getElementById('cartSection').classList.remove('hidden');
+                document.getElementById('cartTab').classList.add('bg-blue-600', 'text-white');
+                document.getElementById('cartTab').classList.remove('bg-gray-100', 'text-gray-600');
+                updateCartDisplay();
+            }
+        }
+
+        function filterCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-filter').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            event.target.classList.add('bg-blue-600', 'text-white');
+            event.target.classList.remove('bg-gray-100', 'text-gray-700');
+            displayProducts();
+        }
+
+        function displayProducts(searchTerm = '') {
+            const productsGrid = document.getElementById('productsGrid');
+            let filteredProducts = productCatalog;
+
+            if (currentCategory !== 'all') {
+                filteredProducts = filteredProducts.filter(p => p.category === currentCategory);
+            }
+
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    p.brand.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            productsGrid.innerHTML = filteredProducts.map(product => {
+                const isInCart = cart.some(item => item.id === product.id);
+                return `
+                    <div class="product-card bg-white rounded-xl shadow-lg p-4 cursor-pointer">
+                        <div class="text-6xl text-center mb-3">${product.image}</div>
+                        <h3 class="font-bold text-gray-800 text-sm mb-1 truncate">${product.name}</h3>
+                        <p class="text-xs text-gray-500 mb-2">${product.brand} - ${product.unit}</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-lg font-bold text-blue-600">~${product.avgPrice.toFixed(2)}€</span>
+                            <span class="text-xs text-gray-400">Prix moyen</span>
+                        </div>
+                        <button onclick="${isInCart ? `removeFromCart(${product.id})` : `addProductToCart(${product.id})`}" 
+                                class="${isInCart ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-600 hover:bg-blue-700'} text-white py-2 px-4 rounded-lg font-semibold transition-colors w-full text-sm">
+                            ${isInCart ? '✓ Dans le panier' : '+ Ajouter'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addProductToCart(productId) {
+            const product = productCatalog.find(p => p.id === productId);
+            if (product && !cart.some(item => item.id === productId)) {
+                cart.push(product);
+                updateCartBadge();
+                displayProducts();
+                showSuccess(`${product.name} ajouté au panier !`);
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartBadge();
+            updateCartDisplay();
+            displayProducts();
+            showSuccess('Produit retiré du panier');
+        }
+
+        function updateCartBadge() {
+            document.getElementById('cartBadge').textContent = cart.length;
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const emptyCart = document.getElementById('emptyCart');
+            const compareButton = document.getElementById('compareButton');
+            
+            if (cart.length === 0) {
+                cartItems.classList.add('hidden');
+                emptyCart.classList.remove('hidden');
+                compareButton.classList.add('hidden');
+                return;
+            }
+
+            cartItems.classList.remove('hidden');
+            emptyCart.classList.add('hidden');
+            compareButton.classList.remove('hidden');
+            document.getElementById('compareCount').textContent = cart.length;
+
+            cartItems.innerHTML = cart.map(product => `
+                <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-xl">
+                    <div class="text-4xl">${product.image}</div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-gray-800">${product.name}</h4>
+                        <p class="text-sm text-gray-500">${product.brand} - ${product.unit}</p>
+                        <p class="text-sm text-blue-600 font-medium">~${product.avgPrice.toFixed(2)}€</p>
+                    </div>
+                    <button onclick="removeFromCart(${product.id})" class="text-red-600 hover:text-red-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+            successDiv.textContent = message;
+            document.body.appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+        async function compareAllPrices() {
+            if (cart.length === 0) return;
+            if (selectedSupermarkets.length === 0) {
+                showError('Veuillez sélectionner au moins un magasin');
+                showTab('stores');
+                return;
+            }
+
+            document.getElementById('loadingContainer').classList.remove('hidden');
+            document.getElementById('totalsContainer').classList.add('hidden');
+
+            const allResults = [];
+
+            for (const product of cart) {
+                const productResults = await Promise.all(
+                    selectedSupermarkets.map(store => simulateProductPrice(product, store))
+                );
+                allResults.push({
+                    product: product,
+                    prices: productResults
+                });
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            displayTotalsComparison(allResults);
+            document.getElementById('loadingContainer').classList.add('hidden');
+        }
+
+        async function simulateProductPrice(product, supermarket) {
+            const priceMultipliers = {
+                'Carrefour': 1.05, 'Leclerc': 0.92, 'Auchan': 1.02, 'Intermarché': 0.95,
+                'Casino': 1.08, 'Monoprix': 1.18, 'Super U': 0.98, 'Lidl': 0.85, 'Aldi': 0.82
+            };
+            
+            const multiplier = priceMultipliers[supermarket.name] || 1.0;
+            const randomVariation = 0.95 + Math.random() * 0.10;
+            const finalPrice = product.avgPrice * multiplier * randomVariation;
+            
+            return {
+                supermarket: supermarket.name,
+                color: supermarket.color,
+                price: Math.round(finalPrice * 100) / 100,
+                store: supermarket
+            };
+        }
+
+        function displayTotalsComparison(allResults) {
+            const totals = {};
+            
+            selectedSupermarkets.forEach(supermarket => {
+                totals[supermarket.name] = {
+                    total: 0,
+                    items: [],
+                    color: supermarket.color,
+                    store: supermarket
+                };
+            });
+
+            allResults.forEach(result => {
+                result.prices.forEach(priceData => {
+                    totals[priceData.supermarket].total += priceData.price;
+                    totals[priceData.supermarket].items.push({
+                        product: result.product,
+                        price: priceData.price
+                    });
+                });
+            });
+
+            const sortedTotals = Object.entries(totals).sort((a, b) => a[1].total - b[1].total);
+
+            const totalsWithCashback = sortedTotals.map(([name, data]) => {
+                const cashbackAmount = (data.total * data.store.cashback) / 100;
+                const finalPrice = data.total - cashbackAmount;
+                return { name, data, cashbackAmount, finalPrice };
+            });
+
+            const bestCashback = totalsWithCashback.reduce((best, current) => 
+                current.finalPrice < best.finalPrice ? current : best
+            , totalsWithCashback[0]);
+
+            const savingsAmount = sortedTotals[sortedTotals.length - 1][1].total - sortedTotals[0][1].total;
+            const savingsPercent = ((savingsAmount / sortedTotals[sortedTotals.length - 1][1].total) * 100).toFixed(1);
+            
+            document.getElementById('savingsAmount').textContent = savingsAmount.toFixed(2);
+            document.getElementById('savingsPercent').textContent = savingsPercent;
+            document.getElementById('savingsBanner').classList.remove('hidden');
+
+            const totalsResults = document.getElementById('totalsResults');
+            totalsResults.innerHTML = sortedTotals.map(([name, data], index) => {
+                const cashbackAmount = (data.total * data.store.cashback) / 100;
+                const finalPrice = data.total - cashbackAmount;
+                const isBestCashback = bestCashback && name === bestCashback.name;
+                
+                return `
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 ${
+                        index === 0 ? 'border-green-500 ring-2 ring-green-200' : 
+                        isBestCashback ? 'border-purple-500 ring-2 ring-purple-200' : 'border-gray-200'
+                    }">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-4">
+                                <div class="${data.color} w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md">
+                                    ${name.charAt(0)}
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">${name}</h3>
+                                    <p class="text-sm text-gray-600">${data.items.length} produits</p>
+                                    ${data.store.cashback > 0 ? `
+                                        <p class="text-xs text-purple-600 font-medium mt-1">
+                                            💰 ${data.store.cashback}% cashback via ${data.store.cashbackPartner}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            
+                            <div class="text-right">
+                                ${data.store.cashback > 0 ? `
+                                    <div class="text-sm text-gray-500 line-through">${data.total.toFixed(2)}€</div>
+                                    <div class="text-3xl font-bold text-purple-600">${finalPrice.toFixed(2)}€</div>
+                                    <div class="text-xs text-green-600 font-medium">-${cashbackAmount.toFixed(2)}€ remboursés</div>
+                                ` : `
+                                    <span class="text-4xl font-bold text-gray-800">${data.total.toFixed(2)}€</span>
+                                `}
+                                ${index === 0 ? 
+                                    '<div class="mt-2"><span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">🏆 Moins cher</span></div>' :
+                                    isBestCashback ?
+                                    '<div class="mt-2"><span class="inline-block bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-semibold">💰 Meilleur cashback</span></div>' :
+                                    `<div class="text-red-600 text-sm font-medium mt-2">+${(data.total - sortedTotals[0][1].total).toFixed(2)}€</div>`
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 p-3 bg-gray-50 rounded-lg max-h-60 overflow-y-auto">
+                            <p class="text-sm font-medium text-gray-700 mb-2">📦 Détail du panier:</p>
+                            <div class="space-y-1">
+                                ${data.items.map(item => `
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-gray-600">${item.product.name}</span>
+                                        <span class="font-medium text-gray-800">${item.price.toFixed(2)}€</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <a href="${data.store.driveUrl}" target="_blank" rel="noopener noreferrer" 
+                           class="block bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-4 rounded-xl font-semibold transition-all text-center">
+                            🛒 Ouvrir le Drive ${name}
+                        </a>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('totalsContainer').classList.remove('hidden');
+            document.getElementById('totalsContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
+
+        function initStoreCheckboxes() {
+            const storeCheckboxes = document.getElementById('storeCheckboxes');
+            const categories = [...new Set(allSupermarkets.map(s => s.category))];
+            
+            categories.forEach(category => {
+                const categoryStores = allSupermarkets.filter(s => s.category === category);
+                
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'mb-3';
+                categoryDiv.innerHTML = `
+                    <p class="text-xs font-bold text-gray-500 uppercase mb-2">${category}</p>
+                `;
+                
+                categoryStores.forEach(store => {
+                    const isSelected = selectedSupermarkets.some(s => s.name === store.name);
+                    const checkbox = document.createElement('label');
+                    checkbox.className = 'flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer';
+                    checkbox.innerHTML = `
+                        <input type="checkbox" value="${store.name}" ${isSelected ? 'checked' : ''} 
+                               class="store-checkbox w-4 h-4 text-blue-600 rounded">
+                        <div class="${store.color} w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs">
+                            ${store.name.charAt(0)}
+                        </div>
+                        <span class="text-sm text-gray-700">${store.name}</span>
+                    `;
+                    categoryDiv.appendChild(checkbox);
+                });
+                
+                storeCheckboxes.appendChild(categoryDiv);
+            });
+
+            updateSelectedStores();
+            
+            document.querySelectorAll('.store-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedStores);
+            });
+        }
+
+        function updateSelectedStores() {
+            const checkedBoxes = document.querySelectorAll('.store-checkbox:checked');
+            const selectedNames = Array.from(checkedBoxes).map(cb => cb.value);
+            selectedSupermarkets = allSupermarkets.filter(s => selectedNames.includes(s.name));
+            document.getElementById('selectedCount').textContent = selectedSupermarkets.length;
+        }
+
+        document.getElementById('catalogSearch').addEventListener('input', (e) => {
+            displayProducts(e.target.value);
+        });
+
+        document.getElementById('clearCartButton').addEventListener('click', () => {
+            cart = [];
+            updateCartBadge();
+            updateCartDisplay();
+            displayProducts();
+            document.getElementById('totalsContainer').classList.add('hidden');
+            document.getElementById('savingsBanner').classList.add('hidden');
+        });
+
+        document.getElementById('compareButton').addEventListener('click', compareAllPrices);
+
+        document.getElementById('selectAllButton').addEventListener('click', () => {
+            document.querySelectorAll('.store-checkbox').forEach(cb => cb.checked = true);
+            updateSelectedStores();
+        });
+
+        document.getElementById('deselectAllButton').addEventListener('click', () => {
+            document.querySelectorAll('.store-checkbox').forEach(cb => cb.checked = false);
+            updateSelectedStores();
+        });
+
+        // Initialize
+        initStoreCheckboxes();
+        displayProducts();
+        updateCartBadge();
+    </script>
+</body>
+</html>    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes spin {
             from { transform: rotate(0deg); }
