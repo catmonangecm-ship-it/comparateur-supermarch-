@@ -1,4 +1,4 @@
-               <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -118,6 +118,13 @@
                     Arrêter
                 </button>
             </div>
+            
+            <button id="clearDatabase" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 mb-6">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Effacer la base de données
+            </button>
 
             <div id="extractionProgress" class="hidden">
                 <div class="mb-4">
@@ -398,7 +405,7 @@
             
             // Initialize store progress
             const storeProgressDiv = document.getElementById('storeProgress');
-            storeProgressDiv.innerHTML = supermarkets.map(store => `
+            storeProgressDiv.innerHTML = supermarkets.map((store, idx) => `
                 <div class="bg-gray-50 rounded-lg p-3">
                     <div class="flex items-center gap-2 mb-2">
                         <div class="${store.color} w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm">
@@ -406,11 +413,11 @@
                         </div>
                         <div class="flex-1">
                             <p class="text-xs font-bold text-gray-700">${store.name}</p>
-                            <p class="text-xs text-gray-500">0 / ${productsPerStore[supermarkets.indexOf(store)].toLocaleString()}</p>
+                            <p class="text-xs text-gray-500" id="store-count-${idx}">0 / ${productsPerStore[idx].toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
-                        <div id="progress-${store.name}" class="${store.color} h-full" style="width: 0%"></div>
+                        <div id="progress-${idx}" class="${store.color} h-full" style="width: 0%"></div>
                     </div>
                 </div>
             `).join('');
@@ -431,6 +438,7 @@
                 for (let j = 0; j < targetProducts; j++) {
                     if (!extractionActive) break;
                     
+                    // IMPORTANT: Passer le nom du supermarché pour générer le bon produit
                     const product = generateProduct(store.name, j);
                     await saveProduct(product);
                     
@@ -438,9 +446,9 @@
                     extractionStats.stores[store.name]++;
                     
                     // Update UI every 10 products
-                    if (j % 10 === 0) {
-                        updateExtractionProgress(store.name, extractionStats.stores[store.name], targetProducts);
-                        await new Promise(resolve => setTimeout(resolve, 10)); // Small delay for UI update
+                    if (j % 10 === 0 || j === targetProducts - 1) {
+                        updateExtractionProgress(i, store.name, extractionStats.stores[store.name], targetProducts);
+                        await new Promise(resolve => setTimeout(resolve, 5)); // Small delay for UI update
                     }
                 }
                 
@@ -469,7 +477,7 @@
             updateStats();
         }
 
-        function updateExtractionProgress(storeName, current, total) {
+        function updateExtractionProgress(storeIndex, storeName, current, total) {
             const percent = (extractionStats.current / extractionStats.total * 100).toFixed(1);
             document.getElementById('extractionBar').style.width = percent + '%';
             document.getElementById('extractionPercent').textContent = percent + '%';
@@ -477,11 +485,14 @@
                 `${extractionStats.current.toLocaleString()} / ${extractionStats.total.toLocaleString()} produits`;
             
             const storePercent = (current / total * 100).toFixed(1);
-            const storeBar = document.getElementById(`progress-${storeName}`);
+            const storeBar = document.getElementById(`progress-${storeIndex}`);
+            const storeCount = document.getElementById(`store-count-${storeIndex}`);
+            
             if (storeBar) {
                 storeBar.style.width = storePercent + '%';
-                storeBar.parentElement.previousElementSibling.querySelector('.text-gray-500').textContent = 
-                    `${current.toLocaleString()} / ${total.toLocaleString()}`;
+            }
+            if (storeCount) {
+                storeCount.textContent = `${current.toLocaleString()} / ${total.toLocaleString()}`;
             }
             
             // Update stats
@@ -503,6 +514,36 @@
         function stopExtraction() {
             extractionActive = false;
             addLog('\n⏸️ Extraction arrêtée par l\'utilisateur');
+        }
+
+        async function clearDatabase() {
+            if (!confirm('⚠️ ATTENTION : Cela va supprimer TOUS les produits de la base de données. Continuer ?')) {
+                return;
+            }
+            
+            try {
+                const transaction = db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                const request = store.clear();
+                
+                request.onsuccess = () => {
+                    showSuccess('Base de données effacée avec succès !');
+                    document.getElementById('statTotalProducts').textContent = '0';
+                    document.getElementById('totalProductsHeader').textContent = '0';
+                    document.getElementById('productsGrid').innerHTML = '';
+                    document.getElementById('emptyResults').classList.remove('hidden');
+                    document.getElementById('resultsCount').textContent = '(0)';
+                    console.log('✅ Base de données effacée');
+                };
+                
+                request.onerror = () => {
+                    showError('Erreur lors de l\'effacement de la base de données');
+                    console.error('❌ Erreur clear DB:', request.error);
+                };
+            } catch (error) {
+                console.error('❌ Erreur:', error);
+                showError('Erreur lors de l\'effacement');
+            }
         }
 
         // Search products
@@ -825,6 +866,7 @@
         document.getElementById('startFullExtraction').addEventListener('click', () => startExtraction('full'));
         document.getElementById('startQuickExtraction').addEventListener('click', () => startExtraction('quick'));
         document.getElementById('stopExtraction').addEventListener('click', stopExtraction);
+        document.getElementById('clearDatabase').addEventListener('click', clearDatabase);
         document.getElementById('searchButton').addEventListener('click', searchProducts);
         document.getElementById('showAllProductsBtn').addEventListener('click', showAllProducts);
         document.getElementById('clearFiltersBtn').addEventListener('click', () => {
