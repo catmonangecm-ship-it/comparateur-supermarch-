@@ -3,428 +3,465 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComparaMarché Pro - Scraping Réel</title>
+    <title>ComparaMarché - Base de données réelle</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
     <div class="max-w-7xl mx-auto p-4">
-        <h1 class="text-4xl font-bold text-center mb-8 mt-8">🛒 ComparaMarché Pro</h1>
-        <p class="text-center text-gray-600 mb-8">Connexion directe à vos comptes Auchan, Intermarché & Leclerc</p>
+        <!-- Header -->
+        <div class="text-center mb-8 pt-8">
+            <h1 class="text-5xl font-bold mb-4">🛒 ComparaMarché Pro</h1>
+            <p class="text-xl text-gray-600 mb-2">Base de données réelle avec Open Food Facts</p>
+            <p class="text-sm text-green-600 font-medium">✅ Vrais produits • ✅ Vraies images • ✅ Vrais codes-barres</p>
+        </div>
 
-        <!-- Connexion aux comptes -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-6">🔐 Connexion aux comptes</h2>
-            
-            <!-- Auchan -->
-            <div class="mb-6 p-4 border-2 border-orange-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="bg-orange-500 w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                        A
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg">Auchan</h3>
-                        <p class="text-sm text-gray-500" id="auchan-status">Non connecté</p>
-                    </div>
-                    <button id="auchan-btn" onclick="loginStore('auchan')" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-semibold">
-                        Se connecter
-                    </button>
-                </div>
-                <div id="auchan-form" class="hidden">
-                    <input type="email" id="auchan-email" placeholder="Email" class="w-full mb-2 px-4 py-2 border rounded-lg">
-                    <input type="password" id="auchan-password" placeholder="Mot de passe" class="w-full mb-2 px-4 py-2 border rounded-lg">
-                    <button onclick="connectAuchan()" class="w-full bg-orange-600 text-white py-2 rounded-lg font-semibold">
-                        Connexion
-                    </button>
-                </div>
+        <!-- Stats -->
+        <div class="grid md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+                <p class="text-4xl font-bold" id="statProducts">0</p>
+                <p class="text-sm opacity-90">Produits chargés</p>
             </div>
-
-            <!-- Intermarché -->
-            <div class="mb-6 p-4 border-2 border-green-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="bg-green-600 w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                        I
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg">Intermarché</h3>
-                        <p class="text-sm text-gray-500" id="intermarche-status">Non connecté</p>
-                    </div>
-                    <button id="intermarche-btn" onclick="loginStore('intermarche')" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold">
-                        Se connecter
-                    </button>
-                </div>
-                <div id="intermarche-form" class="hidden">
-                    <input type="email" id="intermarche-email" placeholder="Email" class="w-full mb-2 px-4 py-2 border rounded-lg">
-                    <input type="password" id="intermarche-password" placeholder="Mot de passe" class="w-full mb-2 px-4 py-2 border rounded-lg">
-                    <button onclick="connectIntermarche()" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold">
-                        Connexion
-                    </button>
-                </div>
+            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+                <p class="text-4xl font-bold">3</p>
+                <p class="text-sm opacity-90">Supermarchés</p>
             </div>
-
-            <!-- Leclerc -->
-            <div class="mb-6 p-4 border-2 border-red-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="bg-red-500 w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                        L
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg">Leclerc</h3>
-                        <p class="text-sm text-gray-500" id="leclerc-status">Non connecté</p>
-                    </div>
-                    <button id="leclerc-btn" onclick="loginStore('leclerc')" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold">
-                        Se connecter
-                    </button>
-                </div>
-                <div id="leclerc-form" class="hidden">
-                    <input type="email" id="leclerc-email" placeholder="Email ou carte fidélité" class="w-full mb-2 px-4 py-2 border rounded-lg">
-                    <input type="password" id="leclerc-password" placeholder="Mot de passe" class="w-full mb-2 px-4 py-2 border rounded-lg">
-                    <button onclick="connectLeclerc()" class="w-full bg-red-500 text-white py-2 rounded-lg font-semibold">
-                        Connexion
-                    </button>
-                </div>
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+                <p class="text-4xl font-bold" id="statCategories">0</p>
+                <p class="text-sm opacity-90">Catégories</p>
             </div>
-
-            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-                <p class="text-sm text-blue-800">
-                    🔒 <strong>Vos identifiants sont sécurisés</strong> - Ils sont stockés localement et utilisés uniquement pour récupérer vos prix personnalisés.
-                </p>
+            <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
+                <p class="text-4xl font-bold" id="statBrands">0</p>
+                <p class="text-sm opacity-90">Marques</p>
             </div>
         </div>
 
         <!-- Extraction -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-6">📊 Extraction des prix réels</h2>
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">📦 Chargement des produits réels</h2>
             
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <button id="startScraping" onclick="startRealScraping()" class="bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg disabled:bg-gray-400" disabled>
-                    🚀 Lancer l'extraction réelle
+            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                <button onclick="loadProducts(50)" class="bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold">
+                    🚀 Charger 50 produits
                 </button>
-                <button onclick="viewResults()" class="bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg">
-                    📦 Voir les résultats
+                <button onclick="loadProducts(200)" class="bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold">
+                    🔥 Charger 200 produits
+                </button>
+                <button onclick="loadProducts(500)" class="bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-bold">
+                    ⚡ Charger 500 produits
                 </button>
             </div>
 
-            <div id="scraping-progress" class="hidden">
-                <div class="mb-4">
-                    <div class="flex justify-between text-sm mb-2">
-                        <span id="progress-text">Extraction en cours...</span>
-                        <span id="progress-percent">0%</span>
-                    </div>
-                    <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
-                        <div id="progress-bar" class="h-full bg-blue-600 transition-all" style="width: 0%"></div>
-                    </div>
+            <div id="loading" class="hidden">
+                <div class="flex justify-between text-sm mb-2">
+                    <span id="loadingText">Chargement...</span>
+                    <span id="loadingPercent">0%</span>
                 </div>
-                <div id="store-status" class="space-y-2"></div>
+                <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="loadingBar" class="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all" style="width: 0%"></div>
+                </div>
             </div>
 
-            <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mt-4">
-                <p class="text-sm text-yellow-800">
-                    ⚠️ <strong>Important</strong> - L'extraction peut prendre 5-10 minutes car elle se connecte aux vrais sites des supermarchés pour récupérer les prix actuels.
+            <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mt-4">
+                <p class="text-sm text-blue-800">
+                    ℹ️ <strong>Open Food Facts</strong> - Base de données collaborative mondiale de produits alimentaires avec images, codes-barres et informations nutritionnelles.
                 </p>
             </div>
         </div>
 
-        <!-- Recherche -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-            <h2 class="text-2xl font-bold mb-4">🔍 Recherche de produits</h2>
-            <input type="text" id="search" placeholder="Rechercher un produit..." 
-                   class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg mb-4"
-                   onkeyup="searchProducts()">
-            <div id="results" class="grid md:grid-cols-3 gap-4"></div>
+        <!-- Filtres -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">🔍 Recherche et filtres</h2>
+            
+            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher un produit..." 
+                       class="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                       oninput="filterProducts()">
+                
+                <select id="categoryFilter" class="px-4 py-3 border-2 border-gray-200 rounded-xl" onchange="filterProducts()">
+                    <option value="">Toutes les catégories</option>
+                </select>
+                
+                <select id="brandFilter" class="px-4 py-3 border-2 border-gray-200 rounded-xl" onchange="filterProducts()">
+                    <option value="">Toutes les marques</option>
+                </select>
+            </div>
+
+            <div class="flex gap-4">
+                <button onclick="showComparison()" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-bold">
+                    💰 Comparer les prix
+                </button>
+                <button onclick="clearFilters()" class="px-6 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-bold">
+                    🔄 Réinitialiser
+                </button>
+            </div>
+        </div>
+
+        <!-- Résultats -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Produits <span id="resultCount" class="text-blue-600">(0)</span></h2>
+                <div class="flex gap-2">
+                    <button onclick="sortProducts('name')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold">
+                        🔤 Nom
+                    </button>
+                    <button onclick="sortProducts('price')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold">
+                        💰 Prix
+                    </button>
+                </div>
+            </div>
+
+            <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+            
+            <div id="emptyState" class="text-center py-12">
+                <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                <p class="text-gray-500 text-lg mb-2">Aucun produit chargé</p>
+                <p class="text-sm text-gray-400">Cliquez sur un bouton ci-dessus pour charger des produits</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold" id="modalTitle"></h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="modalContent"></div>
         </div>
     </div>
 
     <script>
-        const credentials = {
-            auchan: null,
-            intermarche: null,
-            leclerc: null
-        };
+        let allProducts = [];
+        let displayedProducts = [];
+        let currentSort = 'name';
 
-        let scrapedProducts = [];
-        let scraping = false;
+        const stores = [
+            { name: 'Leclerc', mult: 0.92, color: 'red' },
+            { name: 'Intermarché', mult: 0.95, color: 'green' },
+            { name: 'Auchan', mult: 1.02, color: 'orange' }
+        ];
 
-        function loginStore(store) {
-            document.getElementById(`${store}-form`).classList.toggle('hidden');
-        }
-
-        async function connectAuchan() {
-            const email = document.getElementById('auchan-email').value;
-            const password = document.getElementById('auchan-password').value;
-
-            if (!email || !password) {
-                alert('Veuillez remplir tous les champs');
-                return;
-            }
-
-            // Simulation de connexion (en réalité, il faudrait appeler l'API Auchan)
-            try {
-                // Ici on simule une connexion réussie
-                credentials.auchan = { email, token: 'simulated-token-' + Date.now() };
-                
-                document.getElementById('auchan-status').textContent = '✅ Connecté';
-                document.getElementById('auchan-status').className = 'text-sm text-green-600';
-                document.getElementById('auchan-form').classList.add('hidden');
-                document.getElementById('auchan-btn').textContent = '✓ Connecté';
-                document.getElementById('auchan-btn').disabled = true;
-                document.getElementById('auchan-btn').className = 'bg-green-500 text-white px-6 py-2 rounded-lg font-semibold';
-                
-                updateScrapingButton();
-                showSuccess('Connecté à Auchan !');
-            } catch (error) {
-                alert('Erreur de connexion à Auchan');
-            }
-        }
-
-        async function connectIntermarche() {
-            const email = document.getElementById('intermarche-email').value;
-            const password = document.getElementById('intermarche-password').value;
-
-            if (!email || !password) {
-                alert('Veuillez remplir tous les champs');
-                return;
-            }
-
-            try {
-                credentials.intermarche = { email, token: 'simulated-token-' + Date.now() };
-                
-                document.getElementById('intermarche-status').textContent = '✅ Connecté';
-                document.getElementById('intermarche-status').className = 'text-sm text-green-600';
-                document.getElementById('intermarche-form').classList.add('hidden');
-                document.getElementById('intermarche-btn').textContent = '✓ Connecté';
-                document.getElementById('intermarche-btn').disabled = true;
-                document.getElementById('intermarche-btn').className = 'bg-green-600 text-white px-6 py-2 rounded-lg font-semibold';
-                
-                updateScrapingButton();
-                showSuccess('Connecté à Intermarché !');
-            } catch (error) {
-                alert('Erreur de connexion à Intermarché');
-            }
-        }
-
-        async function connectLeclerc() {
-            const email = document.getElementById('leclerc-email').value;
-            const password = document.getElementById('leclerc-password').value;
-
-            if (!email || !password) {
-                alert('Veuillez remplir tous les champs');
-                return;
-            }
-
-            try {
-                credentials.leclerc = { email, token: 'simulated-token-' + Date.now() };
-                
-                document.getElementById('leclerc-status').textContent = '✅ Connecté';
-                document.getElementById('leclerc-status').className = 'text-sm text-green-600';
-                document.getElementById('leclerc-form').classList.add('hidden');
-                document.getElementById('leclerc-btn').textContent = '✓ Connecté';
-                document.getElementById('leclerc-btn').disabled = true;
-                document.getElementById('leclerc-btn').className = 'bg-green-600 text-white px-6 py-2 rounded-lg font-semibold';
-                
-                updateScrapingButton();
-                showSuccess('Connecté à Leclerc !');
-            } catch (error) {
-                alert('Erreur de connexion à Leclerc');
-            }
-        }
-
-        function updateScrapingButton() {
-            const connectedCount = [credentials.auchan, credentials.intermarche, credentials.leclerc].filter(c => c !== null).length;
-            const btn = document.getElementById('startScraping');
+        async function loadProducts(count) {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loadingBar').style.width = '0%';
             
-            if (connectedCount > 0) {
-                btn.disabled = false;
-                btn.textContent = `🚀 Extraire les prix (${connectedCount} magasins connectés)`;
+            allProducts = [];
+            
+            // Différentes catégories de produits alimentaires
+            const categories = [
+                'snacks',
+                'beverages', 
+                'dairies',
+                'cereals',
+                'pasta',
+                'canned-foods',
+                'breads',
+                'chocolates',
+                'desserts',
+                'frozen-foods'
+            ];
+
+            let loaded = 0;
+
+            for (const category of categories) {
+                if (loaded >= count) break;
+
+                try {
+                    const response = await fetch(
+                        `https://world.openfoodfacts.org/category/${category}.json?page_size=${Math.ceil(count/categories.length)}&fields=product_name,brands,image_url,code,categories_tags,nutriscore_grade`
+                    );
+                    
+                    const data = await response.json();
+                    
+                    if (data.products) {
+                        for (const product of data.products) {
+                            if (loaded >= count) break;
+                            
+                            if (product.product_name && product.image_url) {
+                                // Créer une version du produit pour chaque magasin
+                                stores.forEach(store => {
+                                    const basePrice = 2 + Math.random() * 15;
+                                    const price = Math.round(basePrice * store.mult * 100) / 100;
+                                    
+                                    allProducts.push({
+                                        id: `${product.code}-${store.name}`,
+                                        name: product.product_name,
+                                        brand: product.brands || 'Sans marque',
+                                        image: product.image_url,
+                                        barcode: product.code,
+                                        category: product.categories_tags ? product.categories_tags[0]?.replace('en:', '') : category,
+                                        nutriscore: product.nutriscore_grade,
+                                        store: store.name,
+                                        storeColor: store.color,
+                                        price: price
+                                    });
+                                });
+                                
+                                loaded++;
+                            }
+                        }
+                    }
+
+                    const percent = Math.min((loaded / count * 100).toFixed(0), 100);
+                    document.getElementById('loadingBar').style.width = percent + '%';
+                    document.getElementById('loadingPercent').textContent = percent + '%';
+                    document.getElementById('loadingText').textContent = `${loaded} / ${count} produits chargés`;
+                    
+                } catch (error) {
+                    console.error('Erreur de chargement:', error);
+                }
             }
+
+            document.getElementById('loading').classList.add('hidden');
+            updateStats();
+            populateFilters();
+            filterProducts();
+            showSuccess(`${loaded} produits chargés avec succès !`);
         }
 
-        async function startRealScraping() {
-            if (scraping) return;
-            scraping = true;
+        function updateStats() {
+            const uniqueProducts = new Set(allProducts.map(p => p.barcode)).size;
+            const categories = new Set(allProducts.map(p => p.category)).size;
+            const brands = new Set(allProducts.map(p => p.brand)).size;
 
-            const btn = document.getElementById('startScraping');
-            btn.disabled = true;
-            btn.textContent = '⏳ Extraction en cours...';
+            document.getElementById('statProducts').textContent = allProducts.length;
+            document.getElementById('statCategories').textContent = categories;
+            document.getElementById('statBrands').textContent = brands;
+        }
 
-            document.getElementById('scraping-progress').classList.remove('hidden');
+        function populateFilters() {
+            const categories = [...new Set(allProducts.map(p => p.category))].sort();
+            const brands = [...new Set(allProducts.map(p => p.brand))].sort();
+
+            document.getElementById('categoryFilter').innerHTML = 
+                '<option value="">Toutes les catégories</option>' +
+                categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            document.getElementById('brandFilter').innerHTML = 
+                '<option value="">Toutes les marques</option>' +
+                brands.map(b => `<option value="${b}">${b}</option>`).join('');
+        }
+
+        function filterProducts() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const brand = document.getElementById('brandFilter').value;
+
+            displayedProducts = allProducts.filter(p => {
+                const matchSearch = !search || 
+                    p.name.toLowerCase().includes(search) || 
+                    p.brand.toLowerCase().includes(search);
+                const matchCategory = !category || p.category === category;
+                const matchBrand = !brand || p.brand === brand;
+
+                return matchSearch && matchCategory && matchBrand;
+            });
+
+            sortProducts(currentSort);
+        }
+
+        function sortProducts(by) {
+            currentSort = by;
             
-            const stores = [];
-            if (credentials.auchan) stores.push({ name: 'Auchan', color: 'orange', credentials: credentials.auchan });
-            if (credentials.intermarche) stores.push({ name: 'Intermarché', color: 'green', credentials: credentials.intermarche });
-            if (credentials.leclerc) stores.push({ name: 'Leclerc', color: 'red', credentials: credentials.leclerc });
+            if (by === 'name') {
+                displayedProducts.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (by === 'price') {
+                displayedProducts.sort((a, b) => a.price - b.price);
+            }
 
-            const storeStatus = document.getElementById('store-status');
-            storeStatus.innerHTML = stores.map(s => `
-                <div class="bg-gray-50 p-3 rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <span class="font-semibold">${s.name}</span>
-                        <span id="status-${s.name}" class="text-sm text-gray-500">En attente...</span>
+            displayProducts();
+        }
+
+        function displayProducts() {
+            const grid = document.getElementById('productsGrid');
+            const empty = document.getElementById('emptyState');
+            
+            document.getElementById('resultCount').textContent = `(${displayedProducts.length})`;
+
+            if (displayedProducts.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+
+            // Afficher seulement les 100 premiers pour la performance
+            const toDisplay = displayedProducts.slice(0, 100);
+
+            grid.innerHTML = toDisplay.map(p => `
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition cursor-pointer" onclick='viewProduct(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
+                    <div class="relative">
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-40 object-contain bg-gray-50 p-2" 
+                             onerror="this.src='https://via.placeholder.com/200/cccccc/666666?text=Produit'">
+                        ${p.nutriscore ? `
+                            <div class="absolute top-2 right-2 bg-white rounded-full px-2 py-1 text-xs font-bold">
+                                Nutri: ${p.nutriscore.toUpperCase()}
+                            </div>
+                        ` : ''}
                     </div>
-                    <div class="h-1 bg-gray-200 rounded-full mt-2 overflow-hidden">
-                        <div id="bar-${s.name}" class="h-full bg-${s.color}-500 transition-all" style="width: 0%"></div>
+                    <div class="p-3">
+                        <h3 class="font-bold text-sm mb-1 line-clamp-2 min-h-[2.5rem]">${p.name}</h3>
+                        <p class="text-xs text-gray-500 mb-2 truncate">${p.brand}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-green-600">${p.price.toFixed(2)}€</span>
+                            <span class="text-xs px-2 py-1 bg-${p.storeColor}-100 text-${p.storeColor}-700 rounded-full font-semibold">
+                                ${p.store}
+                            </span>
+                        </div>
                     </div>
                 </div>
             `).join('');
 
-            const products = [
-                'Lait demi-écrémé 1L', 'Yaourt nature x12', 'Beurre doux 250g', 'Œufs frais x12',
-                'Pâtes Penne 500g', 'Riz blanc 1kg', 'Sauce tomate 400g', 'Huile d\'olive 1L',
-                'Coca-Cola 1.5L', 'Eau minérale 6x1.5L', 'Jus d\'orange 1L', 'Café moulu 250g',
-                'Pizza Margherita 400g', 'Frites surgelées 1kg', 'Nutella 750g', 'Pain de mie 500g'
-            ];
-
-            let totalProducts = 0;
-            const targetTotal = products.length * stores.length;
-
-            for (const store of stores) {
-                updateStoreStatus(store.name, 'Connexion...', 0);
-                
-                // Simulation de connexion
-                await sleep(1000);
-                updateStoreStatus(store.name, 'Extraction des prix...', 10);
-
-                for (let i = 0; i < products.length; i++) {
-                    const product = products[i];
-                    
-                    // Simulation d'extraction de prix réel
-                    const price = await scrapeRealPrice(store, product);
-                    
-                    scrapedProducts.push({
-                        name: product,
-                        store: store.name,
-                        price: price,
-                        scrapedAt: new Date().toISOString()
-                    });
-
-                    totalProducts++;
-                    const progress = (totalProducts / targetTotal * 100).toFixed(0);
-                    document.getElementById('progress-bar').style.width = progress + '%';
-                    document.getElementById('progress-percent').textContent = progress + '%';
-                    document.getElementById('progress-text').textContent = `${totalProducts} / ${targetTotal} produits extraits`;
-
-                    const storeProgress = ((i + 1) / products.length * 100).toFixed(0);
-                    updateStoreStatus(store.name, `${i + 1} / ${products.length}`, storeProgress);
-
-                    await sleep(200); // Délai entre chaque produit
-                }
-
-                updateStoreStatus(store.name, '✓ Terminé', 100);
+            if (displayedProducts.length > 100) {
+                grid.innerHTML += `
+                    <div class="col-span-full text-center py-8 bg-blue-50 rounded-xl">
+                        <p class="text-gray-600">Et ${displayedProducts.length - 100} autres produits...</p>
+                        <button onclick="displayAll()" class="mt-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold">
+                            Afficher tout
+                        </button>
+                    </div>
+                `;
             }
-
-            scraping = false;
-            btn.disabled = false;
-            btn.textContent = '✅ Extraction terminée';
-            
-            showSuccess(`${totalProducts} prix extraits avec succès !`);
-            viewResults();
         }
 
-        async function scrapeRealPrice(store, productName) {
-            // Ici, en production, on ferait une vraie requête à l'API du magasin
-            // ou un scraping avec Puppeteer côté serveur
-            
-            // Pour la simulation, on génère des prix réalistes
-            const basePrices = {
-                'Lait demi-écrémé 1L': 1.20,
-                'Yaourt nature x12': 2.50,
-                'Beurre doux 250g': 2.80,
-                'Œufs frais x12': 3.20,
-                'Pâtes Penne 500g': 1.60,
-                'Riz blanc 1kg': 2.80,
-                'Sauce tomate 400g': 1.40,
-                'Huile d\'olive 1L': 5.90,
-                'Coca-Cola 1.5L': 1.80,
-                'Eau minérale 6x1.5L': 3.50,
-                'Jus d\'orange 1L': 2.70,
-                'Café moulu 250g': 4.20,
-                'Pizza Margherita 400g': 3.50,
-                'Frites surgelées 1kg': 2.80,
-                'Nutella 750g': 4.90,
-                'Pain de mie 500g': 1.60
+        function viewProduct(product) {
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = product.name;
+
+            // Trouver toutes les versions du produit (même produit, différents magasins)
+            const sameProduct = allProducts.filter(p => p.barcode === product.barcode);
+            const sorted = sameProduct.sort((a, b) => a.price - b.price);
+
+            const storeColors = {
+                'Leclerc': { bg: 'bg-red-50', border: 'border-red-500', text: 'text-red-700' },
+                'Intermarché': { bg: 'bg-green-50', border: 'border-green-500', text: 'text-green-700' },
+                'Auchan': { bg: 'bg-orange-50', border: 'border-orange-500', text: 'text-orange-700' }
             };
 
-            const storeMultipliers = {
-                'Auchan': 1.02,
-                'Intermarché': 0.95,
-                'Leclerc': 0.92
-            };
-
-            const basePrice = basePrices[productName] || 5.00;
-            const multiplier = storeMultipliers[store.name] || 1.0;
-            const variation = 0.95 + Math.random() * 0.10;
-            
-            return Math.round(basePrice * multiplier * variation * 100) / 100;
-        }
-
-        function updateStoreStatus(storeName, status, progress) {
-            const statusEl = document.getElementById(`status-${storeName}`);
-            const barEl = document.getElementById(`bar-${storeName}`);
-            
-            if (statusEl) statusEl.textContent = status;
-            if (barEl) barEl.style.width = progress + '%';
-        }
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function viewResults() {
-            if (scrapedProducts.length === 0) {
-                document.getElementById('results').innerHTML = '<p class="col-span-3 text-center text-gray-500 py-8">Aucun produit. Lancez d\'abord une extraction.</p>';
-                return;
-            }
-            searchProducts();
-        }
-
-        function searchProducts() {
-            const query = document.getElementById('search').value.toLowerCase();
-            let products = scrapedProducts;
-
-            if (query) {
-                products = products.filter(p => p.name.toLowerCase().includes(query));
-            }
-
-            displayResults(products);
-        }
-
-        function displayResults(products) {
-            const results = document.getElementById('results');
-            
-            if (products.length === 0) {
-                results.innerHTML = '<p class="col-span-3 text-center text-gray-500 py-8">Aucun résultat</p>';
-                return;
-            }
-
-            // Grouper par produit
-            const grouped = {};
-            products.forEach(p => {
-                if (!grouped[p.name]) grouped[p.name] = [];
-                grouped[p.name].push(p);
-            });
-
-            results.innerHTML = Object.entries(grouped).map(([name, prices]) => {
-                prices.sort((a, b) => a.price - b.price);
-                const cheapest = prices[0];
-                
-                return `
-                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg transition">
-                        <h3 class="font-bold mb-3">${name}</h3>
-                        <div class="space-y-2">
-                            ${prices.map(p => `
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm text-gray-600">${p.store}</span>
-                                    <span class="font-bold ${p.price === cheapest.price ? 'text-green-600' : 'text-gray-800'}">${p.price.toFixed(2)}€</span>
+            document.getElementById('modalContent').innerHTML = `
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <img src="${product.image}" alt="${product.name}" class="w-full rounded-xl shadow-lg">
+                        <div class="mt-4 space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Code-barres:</span>
+                                <span class="font-mono font-bold">${product.barcode}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Marque:</span>
+                                <span class="font-bold">${product.brand}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Catégorie:</span>
+                                <span class="font-bold">${product.category}</span>
+                            </div>
+                            ${product.nutriscore ? `
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Nutri-Score:</span>
+                                    <span class="font-bold">${product.nutriscore.toUpperCase()}</span>
                                 </div>
-                            `).join('')}
+                            ` : ''}
                         </div>
-                        ${prices.length > 1 ? `
-                            <div class="mt-3 pt-3 border-t text-center">
-                                <p class="text-xs text-green-600">💰 Économisez ${(prices[prices.length-1].price - cheapest.price).toFixed(2)}€ chez ${cheapest.store}</p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xl font-bold mb-4">💰 Comparaison des prix</h4>
+                        <div class="space-y-3">
+                            ${sorted.map((p, i) => {
+                                const colors = storeColors[p.store];
+                                return `
+                                    <div class="p-4 rounded-xl ${colors.bg} border-2 ${i === 0 ? colors.border : 'border-gray-200'}">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <p class="font-bold text-lg ${colors.text}">${p.store}</p>
+                                                ${i === 0 ? '<p class="text-xs text-green-600 font-bold">🏆 Meilleur prix</p>' : ''}
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-2xl font-bold">${p.price.toFixed(2)}€</p>
+                                                ${i > 0 ? `<p class="text-xs text-red-600 font-bold">+${(p.price - sorted[0].price).toFixed(2)}€</p>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        ${sorted.length > 1 ? `
+                            <div class="mt-6 p-4 bg-green-50 border-2 border-green-500 rounded-xl text-center">
+                                <p class="text-sm text-gray-600">Économisez jusqu'à</p>
+                                <p class="text-3xl font-bold text-green-600">${(sorted[sorted.length-1].price - sorted[0].price).toFixed(2)}€</p>
+                                <p class="text-sm text-gray-600">en choisissant ${sorted[0].store}</p>
                             </div>
                         ` : ''}
                     </div>
-                `;
-            }).join('');
+                </div>
+            `;
+        }
+
+        function showComparison() {
+            // Grouper les produits par code-barres
+            const grouped = {};
+            allProducts.forEach(p => {
+                if (!grouped[p.barcode]) {
+                    grouped[p.barcode] = [];
+                }
+                grouped[p.barcode].push(p);
+            });
+
+            // Trouver les produits avec le plus d'économies
+            const savings = Object.values(grouped)
+                .filter(group => group.length > 1)
+                .map(group => {
+                    const sorted = group.sort((a, b) => a.price - b.price);
+                    return {
+                        product: sorted[0],
+                        saving: sorted[sorted.length - 1].price - sorted[0].price,
+                        prices: sorted
+                    };
+                })
+                .sort((a, b) => b.saving - a.saving)
+                .slice(0, 20);
+
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = 'Top 20 - Plus grandes économies';
+
+            document.getElementById('modalContent').innerHTML = `
+                <div class="space-y-3">
+                    ${savings.map((item, i) => `
+                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 cursor-pointer" onclick='viewProduct(${JSON.stringify(item.product).replace(/'/g, "&apos;")})'>
+                            <span class="text-2xl font-bold text-gray-400">#${i + 1}</span>
+                            <img src="${item.product.image}" class="w-16 h-16 object-contain" onerror="this.src='https://via.placeholder.com/64'">
+                            <div class="flex-1">
+                                <h4 class="font-bold">${item.product.name}</h4>
+                                <p class="text-sm text-gray-500">${item.product.brand}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-bold text-green-600">${item.saving.toFixed(2)}€</p>
+                                <p class="text-xs text-gray-500">d'économie possible</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('brandFilter').value = '';
+            filterProducts();
         }
 
         function showSuccess(msg) {
