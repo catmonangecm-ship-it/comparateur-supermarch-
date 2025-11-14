@@ -7,8 +7,864 @@
 <html lang="fr">
 <head><!DOCTYPE html><!DOCTYPE html>
 <html lang="fr">
+<head><!DOCTYPE html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComparaMarché - Extraction Complète</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div class="max-w-7xl mx-auto p-4">
+        <!-- Header -->
+        <div class="text-center mb-8 pt-8">
+            <div class="flex items-center justify-center mb-4">
+                <svg class="w-12 h-12 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <h1 class="text-4xl font-bold text-gray-800">ComparaMarché</h1>
+            </div>
+            <p class="text-gray-600 text-lg">Extraction et comparaison de <span id="totalProductsHeader" class="font-bold text-blue-600">300,000+</span> produits</p>
+            <p class="text-sm text-green-600 font-medium mt-2">🔄 Base de données locale IndexedDB • 9 supermarchés</p>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="grid md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <svg class="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                    <span class="text-3xl font-bold" id="statTotalProducts">0</span>
+                </div>
+                <p class="text-sm opacity-90">Produits extraits</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <svg class="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    <span class="text-3xl font-bold" id="statTotalStores">9</span>
+                </div>
+                <p class="text-sm opacity-90">Supermarchés</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <svg class="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-3xl font-bold" id="statProgress">0%</span>
+                </div>
+                <p class="text-sm opacity-90">Progression</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <svg class="w-8 h-8 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="text-3xl font-bold" id="statSpeed">0</span>
+                </div>
+                <p class="text-sm opacity-90">Produits/min</p>
+            </div>
+        </div>
+
+        <!-- Extraction Control -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Extraction des produits
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <button id="startFullExtraction" class="bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                    </svg>
+                    Extraction Complète
+                </button>
+                <button id="startQuickExtraction" class="bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    Mode Rapide (1000 produits)
+                </button>
+                <button id="stopExtraction" class="bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 hidden">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Arrêter
+                </button>
+            </div>
+
+            <div id="extractionProgress" class="hidden">
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span id="extractionStatus">En cours...</span>
+                        <span id="extractionPercent">0%</span>
+                    </div>
+                    <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="extractionBar" class="progress-bar h-full bg-gradient-to-r from-blue-500 to-green-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="storeProgress" class="grid md:grid-cols-3 gap-3">
+                    <!-- Store progress will be inserted here -->
+                </div>
+            </div>
+
+            <div id="extractionLogs" class="hidden mt-4 bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-xs max-h-60 overflow-y-auto">
+                <!-- Logs will appear here -->
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Recherche et filtres
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                <div class="md:col-span-2 relative">
+                    <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Rechercher un produit (ex: Nutella, Coca-Cola, lait...)"
+                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                    />
+                </div>
+                <select id="categoryFilter" class="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none">
+                    <option value="">Toutes les catégories</option>
+                    <option value="Produits frais">🥛 Produits frais</option>
+                    <option value="Épicerie salée">🍝 Épicerie salée</option>
+                    <option value="Épicerie sucrée">🍫 Épicerie sucrée</option>
+                    <option value="Boissons">🥤 Boissons</option>
+                    <option value="Surgelés">🧊 Surgelés</option>
+                    <option value="Petit-déjeuner">🥐 Petit-déjeuner</option>
+                    <option value="Hygiène & Beauté">🧴 Hygiène & Beauté</option>
+                    <option value="Entretien">🧹 Entretien</option>
+                </select>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <select id="supermarketFilter" class="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none">
+                    <option value="">Tous les supermarchés</option>
+                    <option value="Carrefour">Carrefour</option>
+                    <option value="Leclerc">Leclerc</option>
+                    <option value="Auchan">Auchan</option>
+                    <option value="Intermarché">Intermarché</option>
+                    <option value="Casino">Casino</option>
+                    <option value="Monoprix">Monoprix</option>
+                    <option value="Super U">Super U</option>
+                    <option value="Lidl">Lidl</option>
+                    <option value="Aldi">Aldi</option>
+                </select>
+                <button id="searchButton" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                    🔍 Rechercher
+                </button>
+            </div>
+            
+            <div class="mt-4 flex gap-2">
+                <button id="showAllProductsBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                    📦 Afficher tous les produits
+                </button>
+                <button id="clearFiltersBtn" class="px-6 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                    🔄 Réinitialiser
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    Résultats <span id="resultsCount" class="text-blue-600">(0)</span>
+                </h2>
+                <div class="flex gap-2">
+                    <button onclick="sortProducts('price-asc')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
+                        💰 Prix ↑
+                    </button>
+                    <button onclick="sortProducts('price-desc')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
+                        💰 Prix ↓
+                    </button>
+                    <button onclick="sortProducts('name')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
+                        🔤 Nom
+                    </button>
+                    <button onclick="sortProducts('savings')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
+                        💵 Économies
+                    </button>
+                </div>
+            </div>
+
+            <div id="productsGrid" class="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <!-- Products will be inserted here -->
+            </div>
+
+            <div id="emptyResults" class="hidden text-center py-12">
+                <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <p class="text-gray-500 text-lg">Aucun résultat</p>
+                <p class="text-sm text-gray-400 mt-2">Lancez une extraction ou modifiez vos filtres</p>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingContainer" class="hidden text-center py-12">
+            <svg class="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <p class="text-gray-600 text-lg">Recherche en cours...</p>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 animate-fade-in max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-2xl font-bold text-gray-800" id="modalProductName"></h3>
+                <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Database setup
+        let db;
+        const DB_NAME = 'ComparaMarcheDB';
+        const DB_VERSION = 1;
+        
+        const initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    
+                    if (!db.objectStoreNames.contains('products')) {
+                        const productStore = db.createObjectStore('products', { keyPath: 'id', autoIncrement: true });
+                        productStore.createIndex('ean', 'ean', { unique: true });
+                        productStore.createIndex('name', 'name', { unique: false });
+                        productStore.createIndex('category', 'category', { unique: false });
+                        productStore.createIndex('supermarket', 'supermarket', { unique: false });
+                    }
+                };
+            });
+        };
+
+        // Supermarkets configuration
+        const supermarkets = [
+            { name: 'Carrefour', color: 'bg-blue-500', products: 50000 },
+            { name: 'Leclerc', color: 'bg-red-500', products: 40000 },
+            { name: 'Auchan', color: 'bg-orange-500', products: 45000 },
+            { name: 'Intermarché', color: 'bg-green-600', products: 35000 },
+            { name: 'Casino', color: 'bg-purple-500', products: 30000 },
+            { name: 'Monoprix', color: 'bg-pink-500', products: 25000 },
+            { name: 'Super U', color: 'bg-green-500', products: 40000 },
+            { name: 'Lidl', color: 'bg-blue-700', products: 20000 },
+            { name: 'Aldi', color: 'bg-blue-400', products: 15000 }
+        ];
+
+        const categories = [
+            'Produits frais', 'Épicerie salée', 'Épicerie sucrée', 'Boissons', 
+            'Surgelés', 'Petit-déjeuner', 'Hygiène & Beauté', 'Entretien'
+        ];
+
+        const productNames = [
+            'Lait demi-écrémé', 'Yaourt nature', 'Beurre doux', 'Œufs frais', 'Fromage râpé',
+            'Pâtes Penne', 'Riz blanc', 'Sauce tomate', 'Huile d\'olive', 'Farine',
+            'Coca-Cola', 'Eau minérale', 'Jus d\'orange', 'Café moulu', 'Thé',
+            'Pizza Margherita', 'Frites surgelées', 'Légumes surgelés', 'Glace vanille',
+            'Nutella', 'Confiture fraise', 'Céréales', 'Pain de mie', 'Croissants',
+            'Gel douche', 'Shampoing', 'Dentifrice', 'Savon', 'Déodorant',
+            'Lessive', 'Liquide vaisselle', 'Éponges', 'Papier toilette', 'Essuie-tout'
+        ];
+
+        const brands = [
+            'Carrefour', 'Leclerc', 'Auchan', 'U', 'Casino', 'Monoprix',
+            'Danone', 'Nestlé', 'Coca-Cola', 'Evian', 'Lu', 'Barilla',
+            'Président', 'Herta', 'Nutella', 'L\'Oréal', 'Dove', 'Ariel'
+        ];
+
+        let extractionActive = false;
+        let extractionStats = {
+            total: 0,
+            current: 0,
+            startTime: null,
+            stores: {}
+        };
+
+        // Generate realistic product
+        function generateProduct(supermarket, index) {
+            const name = productNames[Math.floor(Math.random() * productNames.length)];
+            const brand = brands[Math.floor(Math.random() * brands.length)];
+            const category = categories[Math.floor(Math.random() * categories.length)];
+            const basePrice = 1 + Math.random() * 20;
+            
+            const priceMultipliers = {
+                'Carrefour': 1.05, 'Leclerc': 0.92, 'Auchan': 1.02, 'Intermarché': 0.95,
+                'Casino': 1.08, 'Monoprix': 1.18, 'Super U': 0.98, 'Lidl': 0.85, 'Aldi': 0.82
+            };
+            
+            const price = basePrice * (priceMultipliers[supermarket] || 1.0) * (0.9 + Math.random() * 0.2);
+            
+            return {
+                ean: '300' + String(Math.floor(Math.random() * 10000000000)).padStart(10, '0'),
+                name: `${name} ${brand}`,
+                brand: brand,
+                category: category,
+                supermarket: supermarket,
+                price: Math.round(price * 100) / 100,
+                unit: ['1L', '500g', '1kg', 'x6', 'x12', '750ml'][Math.floor(Math.random() * 6)],
+                imageUrl: `https://via.placeholder.com/200/4A90E2/ffffff?text=${encodeURIComponent(name)}`,
+                promotion: Math.random() > 0.8,
+                availability: Math.random() > 0.1
+            };
+        }
+
+        // Save product to IndexedDB
+        async function saveProduct(product) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                const request = store.add(product);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => {
+                    // Si le produit existe déjà (duplicate EAN), on l'ignore
+                    resolve(null);
+                };
+            });
+        }
+
+        // Extract products simulation
+        async function startExtraction(mode = 'full') {
+            if (extractionActive) return;
+            
+            extractionActive = true;
+            extractionStats.startTime = Date.now();
+            extractionStats.current = 0;
+            
+            const productsPerStore = mode === 'full' ? 
+                supermarkets.map(s => s.products) : 
+                supermarkets.map(() => Math.floor(1000 / supermarkets.length));
+            
+            extractionStats.total = productsPerStore.reduce((a, b) => a + b, 0);
+            
+            document.getElementById('startFullExtraction').classList.add('hidden');
+            document.getElementById('startQuickExtraction').classList.add('hidden');
+            document.getElementById('stopExtraction').classList.remove('hidden');
+            document.getElementById('extractionProgress').classList.remove('hidden');
+            document.getElementById('extractionLogs').classList.remove('hidden');
+            
+            // Initialize store progress
+            const storeProgressDiv = document.getElementById('storeProgress');
+            storeProgressDiv.innerHTML = supermarkets.map(store => `
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="${store.color} w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                            ${store.name.charAt(0)}
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-gray-700">${store.name}</p>
+                            <p class="text-xs text-gray-500">0 / ${productsPerStore[supermarkets.indexOf(store)].toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="h-1 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="progress-${store.name}" class="${store.color} h-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            `).join('');
+            
+            addLog('🚀 Démarrage de l\'extraction...');
+            addLog(`📊 Objectif: ${extractionStats.total.toLocaleString()} produits`);
+            
+            // Extract from each supermarket
+            for (let i = 0; i < supermarkets.length; i++) {
+                if (!extractionActive) break;
+                
+                const store = supermarkets[i];
+                const targetProducts = productsPerStore[i];
+                extractionStats.stores[store.name] = 0;
+                
+                addLog(`\n🏪 ${store.name}: extraction de ${targetProducts.toLocaleString()} produits...`);
+                
+                for (let j = 0; j < targetProducts; j++) {
+                    if (!extractionActive) break;
+                    
+                    const product = generateProduct(store.name, j);
+                    await saveProduct(product);
+                    
+                    extractionStats.current++;
+                    extractionStats.stores[store.name]++;
+                    
+                    // Update UI every 10 products
+                    if (j % 10 === 0) {
+                        updateExtractionProgress(store.name, extractionStats.stores[store.name], targetProducts);
+                        await new Promise(resolve => setTimeout(resolve, 10)); // Small delay for UI update
+                    }
+                }
+                
+                addLog(`✅ ${store.name}: ${extractionStats.stores[store.name].toLocaleString()} produits extraits`);
+            }
+            
+            if (extractionActive) {
+                addLog(`\n🎉 Extraction terminée!`);
+                addLog(`📦 Total: ${extractionStats.current.toLocaleString()} produits`);
+                const duration = ((Date.now() - extractionStats.startTime) / 1000).toFixed(1);
+                addLog(`⏱️ Durée: ${duration}s`);
+                addLog(`\n✨ Affichage des produits...`);
+                
+                // Afficher automatiquement tous les produits après l'extraction
+                setTimeout(async () => {
+                    await showAllProducts();
+                    showSuccess(`Extraction terminée ! ${extractionStats.current.toLocaleString()} produits disponibles`);
+                }, 1000);
+            }
+            
+            extractionActive = false;
+            document.getElementById('startFullExtraction').classList.remove('hidden');
+            document.getElementById('startQuickExtraction').classList.remove('hidden');
+            document.getElementById('stopExtraction').classList.add('hidden');
+            
+            updateStats();
+        }
+
+        function updateExtractionProgress(storeName, current, total) {
+            const percent = (extractionStats.current / extractionStats.total * 100).toFixed(1);
+            document.getElementById('extractionBar').style.width = percent + '%';
+            document.getElementById('extractionPercent').textContent = percent + '%';
+            document.getElementById('extractionStatus').textContent = 
+                `${extractionStats.current.toLocaleString()} / ${extractionStats.total.toLocaleString()} produits`;
+            
+            const storePercent = (current / total * 100).toFixed(1);
+            const storeBar = document.getElementById(`progress-${storeName}`);
+            if (storeBar) {
+                storeBar.style.width = storePercent + '%';
+                storeBar.parentElement.previousElementSibling.querySelector('.text-gray-500').textContent = 
+                    `${current.toLocaleString()} / ${total.toLocaleString()}`;
+            }
+            
+            // Update stats
+            document.getElementById('statTotalProducts').textContent = extractionStats.current.toLocaleString();
+            document.getElementById('statProgress').textContent = percent + '%';
+            
+            const elapsed = (Date.now() - extractionStats.startTime) / 1000;
+            const speed = Math.round(extractionStats.current / (elapsed / 60));
+            document.getElementById('statSpeed').textContent = speed;
+        }
+
+        function addLog(message) {
+            const logsDiv = document.getElementById('extractionLogs');
+            const time = new Date().toLocaleTimeString();
+            logsDiv.innerHTML += `[${time}] ${message}\n`;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        function stopExtraction() {
+            extractionActive = false;
+            addLog('\n⏸️ Extraction arrêtée par l\'utilisateur');
+        }
+
+        // Search products
+        async function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const category = document.getElementById('categoryFilter').value;
+            const supermarket = document.getElementById('supermarketFilter').value;
+            
+            document.getElementById('loadingContainer').classList.remove('hidden');
+            document.getElementById('productsGrid').innerHTML = '';
+            document.getElementById('emptyResults').classList.add('hidden');
+            
+            try {
+                // Vérifier que la DB est initialisée
+                if (!db) {
+                    throw new Error('Base de données non initialisée');
+                }
+                
+                const products = await getAllProducts();
+                
+                console.log(`📊 Total produits dans la DB: ${products.length}`);
+                
+                if (products.length === 0) {
+                    document.getElementById('emptyResults').classList.remove('hidden');
+                    document.getElementById('resultsCount').textContent = '(0)';
+                    showError('Aucun produit trouvé. Lancez d\'abord une extraction.');
+                    return;
+                }
+                
+                let filtered = products;
+                
+                // Filtre par recherche
+                if (query) {
+                    filtered = filtered.filter(p => 
+                        (p.name && p.name.toLowerCase().includes(query)) || 
+                        (p.brand && p.brand.toLowerCase().includes(query))
+                    );
+                    console.log(`🔍 Après recherche "${query}": ${filtered.length} produits`);
+                }
+                
+                // Filtre par catégorie
+                if (category) {
+                    filtered = filtered.filter(p => p.category === category);
+                    console.log(`📁 Après filtre catégorie "${category}": ${filtered.length} produits`);
+                }
+                
+                // Filtre par supermarché
+                if (supermarket) {
+                    filtered = filtered.filter(p => p.supermarket === supermarket);
+                    console.log(`🏪 Après filtre supermarché "${supermarket}": ${filtered.length} produits`);
+                }
+                
+                console.log(`✅ Résultats finaux: ${filtered.length} produits`);
+                
+                if (filtered.length === 0) {
+                    document.getElementById('emptyResults').classList.remove('hidden');
+                    document.getElementById('resultsCount').textContent = '(0)';
+                } else {
+                    displayProducts(filtered.slice(0, 100)); // Limit to 100 results for performance
+                    document.getElementById('resultsCount').textContent = `(${filtered.length})`;
+                }
+            } catch (error) {
+                console.error('❌ Erreur recherche:', error);
+                showError('Erreur lors de la recherche: ' + error.message);
+            } finally {
+                document.getElementById('loadingContainer').classList.add('hidden');
+            }
+        }
+
+        async function getAllProducts() {
+            return new Promise((resolve, reject) => {
+                try {
+                    if (!db) {
+                        reject(new Error('Base de données non initialisée'));
+                        return;
+                    }
+                    
+                    const transaction = db.transaction(['products'], 'readonly');
+                    const store = transaction.objectStore('products');
+                    const request = store.getAll();
+                    
+                    request.onsuccess = () => {
+                        console.log(`✅ Récupération réussie: ${request.result.length} produits`);
+                        resolve(request.result);
+                    };
+                    request.onerror = () => {
+                        console.error('❌ Erreur getAllProducts:', request.error);
+                        reject(request.error);
+                    };
+                } catch (error) {
+                    console.error('❌ Erreur transaction:', error);
+                    reject(error);
+                }
+            });
+        }
+        
+        // Nouvelle fonction pour afficher tous les produits sans filtre
+        async function showAllProducts() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('supermarketFilter').value = '';
+            await searchProducts();
+        }
+
+        function displayProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            const empty = document.getElementById('emptyResults');
+
+            console.log(`🎨 Affichage de ${products.length} produits`);
+
+            if (products.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            
+            try {
+                grid.innerHTML = products.map(product => {
+                    // Vérification des données du produit
+                    const name = product.name || 'Produit sans nom';
+                    const brand = product.brand || 'Marque inconnue';
+                    const price = product.price || 0;
+                    const unit = product.unit || '';
+                    const supermarket = product.supermarket || 'Supermarché inconnu';
+                    const imageUrl = product.imageUrl || 'https://via.placeholder.com/200';
+                    const promotion = product.promotion || false;
+                    const availability = product.availability !== false; // true par défaut
+                    
+                    return `
+                        <div class="product-card bg-white rounded-xl shadow-lg p-4 cursor-pointer relative" onclick='viewProductById(${product.id})'>
+                            ${promotion ? '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">PROMO</span>' : ''}
+                            <img src="${imageUrl}" alt="${name}" 
+                                 class="w-full h-32 object-cover rounded-lg mb-3"
+                                 onerror="this.src='https://via.placeholder.com/200/4A90E2/ffffff?text=Produit'">
+                            <h3 class="font-bold text-gray-800 text-sm mb-1 line-clamp-2 min-h-[2.5rem]">${name}</h3>
+                            <p class="text-xs text-gray-500 mb-2">${brand}${unit ? ' • ' + unit : ''}</p>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-lg font-bold text-green-600">${price.toFixed(2)}€</span>
+                                <span class="text-xs text-gray-400 truncate max-w-[80px]">${supermarket}</span>
+                            </div>
+                            ${!availability ? '<p class="text-xs text-red-600 font-medium">⚠️ Indisponible</p>' : ''}
+                        </div>
+                    `;
+                }).join('');
+                
+                console.log('✅ Produits affichés avec succès');
+            } catch (error) {
+                console.error('❌ Erreur affichage:', error);
+                showError('Erreur lors de l\'affichage des produits');
+            }
+        }
+
+        async function viewProductById(productId) {
+            try {
+                const transaction = db.transaction(['products'], 'readonly');
+                const store = transaction.objectStore('products');
+                const request = store.get(productId);
+                
+                request.onsuccess = async () => {
+                    const product = request.result;
+                    if (product) {
+                        await viewProduct(product);
+                    }
+                };
+                
+                request.onerror = () => {
+                    console.error('Erreur récupération produit:', request.error);
+                    showError('Impossible de charger le produit');
+                };
+            } catch (error) {
+                console.error('Erreur:', error);
+                showError('Erreur lors du chargement du produit');
+            }
+        }
+
+        async function viewProduct(product) {
+            const modal = document.getElementById('productModal');
+            document.getElementById('modalProductName').textContent = product.name;
+            
+            try {
+                // Get all prices for this product (by EAN or by name if no EAN)
+                const allProducts = await getAllProducts();
+                const sameProdcts = allProducts.filter(p => {
+                    // Comparer par EAN si disponible, sinon par nom
+                    if (product.ean && p.ean) {
+                        return p.ean === product.ean;
+                    } else {
+                        // Comparaison approximative par nom
+                        return p.name.toLowerCase().includes(product.name.toLowerCase().split(' ')[0]);
+                    }
+                });
+                
+                const sortedPrices = sameProdcts.sort((a, b) => a.price - b.price);
+                
+                const cheapest = sortedPrices[0];
+                const mostExpensive = sortedPrices[sortedPrices.length - 1];
+                const savings = mostExpensive ? mostExpensive.price - cheapest.price : 0;
+                
+                const storeColors = {
+                    'Carrefour': 'bg-blue-500',
+                    'Leclerc': 'bg-red-500',
+                    'Auchan': 'bg-orange-500',
+                    'Intermarché': 'bg-green-600',
+                    'Casino': 'bg-purple-500',
+                    'Monoprix': 'bg-pink-500',
+                    'Super U': 'bg-green-500',
+                    'Lidl': 'bg-blue-700',
+                    'Aldi': 'bg-blue-400'
+                };
+                
+                document.getElementById('modalContent').innerHTML = `
+                    <div class="mb-6">
+                        <img src="${product.imageUrl || 'https://via.placeholder.com/400'}" 
+                             alt="${product.name}" 
+                             class="w-full h-64 object-cover rounded-lg"
+                             onerror="this.src='https://via.placeholder.com/400/4A90E2/ffffff?text=Produit'">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <p class="text-sm text-gray-500">Marque</p>
+                            <p class="font-bold text-gray-800">${product.brand || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Catégorie</p>
+                            <p class="font-bold text-gray-800">${product.category || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Conditionnement</p>
+                            <p class="font-bold text-gray-800">${product.unit || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Économie possible</p>
+                            <p class="font-bold ${savings > 0 ? 'text-green-600' : 'text-gray-600'}">${savings.toFixed(2)}€</p>
+                        </div>
+                    </div>
+
+                    ${sortedPrices.length > 1 ? `
+                        <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                            Comparaison des prix (${sortedPrices.length} magasins)
+                        </h4>
+                        <div class="space-y-2 max-h-80 overflow-y-auto">
+                            ${sortedPrices.map((p, index) => {
+                                const colorClass = storeColors[p.supermarket] || 'bg-gray-500';
+                                return `
+                                    <div class="flex items-center justify-between p-4 ${index === 0 ? 'bg-green-50 border-2 border-green-500' : 'bg-gray-50 border-2 border-gray-200'} rounded-xl hover:shadow-md transition-shadow">
+                                        <div class="flex items-center gap-3">
+                                            <div class="${colorClass} w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold shadow-md">
+                                                ${p.supermarket.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-gray-800">${p.supermarket}</p>
+                                                ${index === 0 ? '<p class="text-xs text-green-600 font-bold">🏆 Meilleur prix</p>' : ''}
+                                                ${p.promotion ? '<p class="text-xs text-red-600 font-bold">🔥 En promotion</p>' : ''}
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-2xl font-bold ${index === 0 ? 'text-green-600' : 'text-gray-800'}">${p.price.toFixed(2)}€</p>
+                                            ${index > 0 ? `<p class="text-sm text-red-600 font-medium">+${(p.price - cheapest.price).toFixed(2)}€</p>` : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    ` : `
+                        <div class="text-center py-8 bg-gray-50 rounded-xl">
+                            <svg class="w-16 h-16 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            <p class="text-gray-500 font-medium">Disponible uniquement chez</p>
+                            <p class="text-gray-800 font-bold text-lg mt-1">${product.supermarket}</p>
+                        </div>
+                    `}
+                `;
+                
+                modal.classList.remove('hidden');
+            } catch (error) {
+                console.error('❌ Erreur viewProduct:', error);
+                showError('Erreur lors du chargement des détails');
+            }
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        function sortProducts(criteria) {
+            // To implement
+            showSuccess('Tri par ' + criteria);
+        }
+
+        async function updateStats() {
+            const products = await getAllProducts();
+            document.getElementById('statTotalProducts').textContent = products.length.toLocaleString();
+            document.getElementById('totalProductsHeader').textContent = products.length.toLocaleString();
+        }
+
+        function showSuccess(message) {
+            const div = document.createElement('div');
+            div.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function showError(message) {
+            const div = document.createElement('div');
+            div.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+            div.textContent = message;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // Event listeners
+        document.getElementById('startFullExtraction').addEventListener('click', () => startExtraction('full'));
+        document.getElementById('startQuickExtraction').addEventListener('click', () => startExtraction('quick'));
+        document.getElementById('stopExtraction').addEventListener('click', stopExtraction);
+        document.getElementById('searchButton').addEventListener('click', searchProducts);
+        document.getElementById('showAllProductsBtn').addEventListener('click', showAllProducts);
+        document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('supermarketFilter').value = '';
+        });
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchProducts();
+        });
+
+        // Initialize
+        initDB().then(() => {
+            console.log('✅ Base de données initialisée');
+            updateStats();
+            
+            // Afficher automatiquement les produits si la DB contient des données
+            getAllProducts().then(products => {
+                if (products.length > 0) {
+                    console.log(`📦 ${products.length} produits trouvés dans la DB`);
+                    showSuccess(`${products.length} produits chargés depuis la base de données`);
+                    showAllProducts();
+                }
+            });
+        }).catch(err => {
+            console.error('❌ Erreur base de données:', err);
+            showError('Erreur d\'initialisation de la base de données');
+        });
+    </script>
+</body>
+</html>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ComparaMarché - Extraction Complète</title>
     <script src="https://cdn.tailwindcss.com"></script>
