@@ -3,479 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ComparaMarché - Comparateur de Prix</title>
+    <title>ComparaMarché Simple</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin {
-            animation: spin 1s linear infinite;
-        }
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fade-in 0.3s ease-out;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-        .product-card {
-            transition: all 0.3s ease;
-        }
-    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-    <div class="max-w-7xl mx-auto p-4">
-        <!-- Header -->
-        <div class="text-center mb-8 pt-8">
-            <div class="flex items-center justify-center mb-4">
-                <svg class="w-12 h-12 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-                <h1 class="text-4xl font-bold text-gray-800">ComparaMarché</h1>
-            </div>
-            <p class="text-gray-600 text-lg">Comparateur de prix - <span id="totalProductsHeader" class="font-bold text-blue-600">0</span> produits</p>
-            <p class="text-sm text-green-600 font-medium mt-2">🔄 Base de données locale • 9 supermarchés</p>
-        </div>
-
-        <!-- Stats -->
-        <div class="grid md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
-                <p class="text-3xl font-bold" id="statProducts">0</p>
-                <p class="text-sm opacity-90">Produits</p>
-            </div>
-            <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
-                <p class="text-3xl font-bold">9</p>
-                <p class="text-sm opacity-90">Supermarchés</p>
-            </div>
-            <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
-                <p class="text-3xl font-bold" id="statProgress">0%</p>
-                <p class="text-sm opacity-90">Progression</p>
-            </div>
-            <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
-                <p class="text-3xl font-bold" id="statSpeed">0</p>
-                <p class="text-sm opacity-90">Prod./min</p>
-            </div>
-        </div>
-
-        <!-- Extraction -->
-        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">🔄 Extraction des produits</h2>
-            
-            <div class="grid md:grid-cols-3 gap-4 mb-4">
-                <button id="extractBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold">
-                    Extraire 1000 produits
-                </button>
-                <button id="stopBtn" class="hidden bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-semibold">
-                    ⏸️ Arrêter
-                </button>
-                <button id="clearBtn" class="bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-xl font-semibold">
-                    🗑️ Effacer tout
-                </button>
-            </div>
-
-            <div id="progressBar" class="hidden mb-4">
-                <div class="flex justify-between text-sm mb-2">
-                    <span id="progressText">Extraction...</span>
-                    <span id="progressPercent">0%</span>
-                </div>
-                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div id="progressFill" class="h-full bg-blue-600 transition-all" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <div id="storeProgress" class="hidden grid md:grid-cols-3 gap-3"></div>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8">🛒 ComparaMarché</h1>
+        
+        <!-- Controls -->
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <button onclick="generateProducts()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700">
+                🔄 Générer 100 produits
+            </button>
+            <p class="text-center mt-4 text-gray-600">Total: <span id="total" class="font-bold">0</span> produits</p>
         </div>
 
         <!-- Search -->
-        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">🔍 Recherche</h2>
-            
-            <div class="grid md:grid-cols-3 gap-4 mb-4">
-                <input type="text" id="searchInput" placeholder="Rechercher un produit..." 
-                       class="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none">
-                <select id="categoryFilter" class="px-4 py-3 border-2 border-gray-200 rounded-xl">
-                    <option value="">Toutes catégories</option>
-                    <option value="Produits frais">Produits frais</option>
-                    <option value="Épicerie">Épicerie</option>
-                    <option value="Boissons">Boissons</option>
-                    <option value="Surgelés">Surgelés</option>
-                </select>
-                <select id="storeFilter" class="px-4 py-3 border-2 border-gray-200 rounded-xl">
-                    <option value="">Tous magasins</option>
-                    <option value="Carrefour">Carrefour</option>
-                    <option value="Leclerc">Leclerc</option>
-                    <option value="Auchan">Auchan</option>
-                    <option value="Intermarché">Intermarché</option>
-                    <option value="Casino">Casino</option>
-                    <option value="Monoprix">Monoprix</option>
-                    <option value="Super U">Super U</option>
-                    <option value="Lidl">Lidl</option>
-                    <option value="Aldi">Aldi</option>
-                </select>
-            </div>
-
-            <div class="flex gap-4">
-                <button id="searchBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold">
-                    🔍 Rechercher
-                </button>
-                <button id="showAllBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold">
-                    📦 Tout afficher
-                </button>
-            </div>
+        <div class="bg-white p-6 rounded-lg shadow mb-8">
+            <input type="text" id="search" placeholder="🔍 Rechercher un produit..." 
+                   class="w-full px-4 py-3 border rounded-lg"
+                   onkeyup="filterProducts()">
         </div>
 
-        <!-- Results -->
-        <div class="mb-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-gray-800">Résultats <span id="resultCount" class="text-blue-600">(0)</span></h2>
-            </div>
-
-            <div id="productsGrid" class="grid md:grid-cols-4 gap-4"></div>
-            
-            <div id="emptyState" class="hidden text-center py-12">
-                <p class="text-gray-500 text-lg">Aucun produit trouvé</p>
-                <p class="text-sm text-gray-400 mt-2">Lancez d'abord une extraction</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold" id="modalTitle"></h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div id="modalContent"></div>
-        </div>
+        <!-- Products Grid -->
+        <div id="products" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
     </div>
 
     <script>
-        // Database
-        let db;
-        let extracting = false;
-        let extractStats = { total: 0, current: 0, start: 0 };
+        let allProducts = [];
 
         const stores = [
-            { name: 'Carrefour', color: 'bg-blue-500', mult: 1.05 },
-            { name: 'Leclerc', color: 'bg-red-500', mult: 0.92 },
-            { name: 'Auchan', color: 'bg-orange-500', mult: 1.02 },
-            { name: 'Intermarché', color: 'bg-green-600', mult: 0.95 },
-            { name: 'Casino', color: 'bg-purple-500', mult: 1.08 },
-            { name: 'Monoprix', color: 'bg-pink-500', mult: 1.18 },
-            { name: 'Super U', color: 'bg-green-500', mult: 0.98 },
-            { name: 'Lidl', color: 'bg-blue-700', mult: 0.85 },
-            { name: 'Aldi', color: 'bg-blue-400', mult: 0.82 }
+            { name: 'Carrefour', color: 'blue' },
+            { name: 'Leclerc', color: 'red' },
+            { name: 'Auchan', color: 'orange' },
+            { name: 'Intermarché', color: 'green' },
+            { name: 'Casino', color: 'purple' },
+            { name: 'Monoprix', color: 'pink' },
+            { name: 'Super U', color: 'teal' },
+            { name: 'Lidl', color: 'indigo' },
+            { name: 'Aldi', color: 'cyan' }
         ];
 
-        const products = [
-            'Lait', 'Yaourt', 'Beurre', 'Œufs', 'Fromage', 'Pâtes', 'Riz', 'Sauce tomate',
-            'Huile', 'Farine', 'Coca-Cola', 'Eau', 'Jus orange', 'Café', 'Thé',
-            'Pizza', 'Frites', 'Légumes', 'Glace', 'Nutella', 'Confiture', 'Céréales',
-            'Pain', 'Croissants', 'Gel douche', 'Shampoing', 'Dentifrice', 'Savon',
-            'Lessive', 'Liquide vaisselle', 'Papier toilette'
+        const productNames = [
+            'Lait 1L', 'Yaourt x12', 'Beurre 250g', 'Œufs x12', 'Fromage râpé',
+            'Pâtes 500g', 'Riz 1kg', 'Sauce tomate', 'Huile d\'olive', 'Farine 1kg',
+            'Coca-Cola 1.5L', 'Eau 6x1.5L', 'Jus d\'orange 1L', 'Café 250g', 'Thé x25',
+            'Pizza surgelée', 'Frites 1kg', 'Légumes surgelés', 'Glace 500ml', 'Nutella 750g'
         ];
 
-        const categories = ['Produits frais', 'Épicerie', 'Boissons', 'Surgelés'];
-
-        // Init DB
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const req = indexedDB.open('ComparaMarcheDB', 1);
-                req.onerror = () => reject(req.error);
-                req.onsuccess = () => {
-                    db = req.result;
-                    resolve(db);
-                };
-                req.onupgradeneeded = (e) => {
-                    const database = e.target.result;
-                    if (!database.objectStoreNames.contains('products')) {
-                        database.createObjectStore('products', { keyPath: 'id', autoIncrement: true });
-                    }
-                };
+        function generateProducts() {
+            allProducts = [];
+            
+            // Pour chaque produit
+            productNames.forEach(productName => {
+                // Pour chaque magasin
+                stores.forEach(store => {
+                    const basePrice = 2 + Math.random() * 10;
+                    allProducts.push({
+                        name: productName,
+                        store: store.name,
+                        color: store.color,
+                        price: basePrice.toFixed(2)
+                    });
+                });
             });
-        }
 
-        // Generate product
-        function generateProduct(storeName, mult) {
-            const name = products[Math.floor(Math.random() * products.length)];
-            const basePrice = 1 + Math.random() * 20;
-            return {
-                name: name,
-                store: storeName,
-                price: Math.round(basePrice * mult * 100) / 100,
-                category: categories[Math.floor(Math.random() * categories.length)],
-                promo: Math.random() > 0.8
-            };
-        }
-
-        // Save product
-        async function saveProduct(product) {
-            return new Promise((resolve) => {
-                const tx = db.transaction(['products'], 'readwrite');
-                const store = tx.objectStore('products');
-                store.add(product);
-                tx.oncomplete = () => resolve();
-                tx.onerror = () => resolve();
-            });
-        }
-
-        // Get all products
-        async function getAllProducts() {
-            return new Promise((resolve) => {
-                const tx = db.transaction(['products'], 'readonly');
-                const store = tx.objectStore('products');
-                const req = store.getAll();
-                req.onsuccess = () => resolve(req.result);
-                req.onerror = () => resolve([]);
-            });
-        }
-
-        // Extract
-        async function startExtraction() {
-            if (extracting) return;
-            extracting = true;
-            
-            const totalProducts = 1000;
-            const perStore = Math.floor(totalProducts / stores.length);
-            
-            extractStats = { total: totalProducts, current: 0, start: Date.now() };
-            
-            document.getElementById('extractBtn').classList.add('hidden');
-            document.getElementById('stopBtn').classList.remove('hidden');
-            document.getElementById('progressBar').classList.remove('hidden');
-            document.getElementById('storeProgress').classList.remove('hidden');
-            
-            // Create store progress
-            const storeProgress = document.getElementById('storeProgress');
-            storeProgress.innerHTML = stores.map((s, i) => `
-                <div class="bg-gray-50 p-3 rounded-lg">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div class="${s.color} w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs">
-                            ${s.name[0]}
-                        </div>
-                        <span class="text-xs font-bold">${s.name}</span>
-                    </div>
-                    <div class="h-1 bg-gray-200 rounded-full">
-                        <div id="store-${i}" class="${s.color} h-full transition-all" style="width: 0%"></div>
-                    </div>
-                </div>
-            `).join('');
-
-            // Extract from each store
-            for (let i = 0; i < stores.length && extracting; i++) {
-                const store = stores[i];
-                
-                for (let j = 0; j < perStore && extracting; j++) {
-                    const product = generateProduct(store.name, store.mult);
-                    await saveProduct(product);
-                    
-                    extractStats.current++;
-                    
-                    if (j % 5 === 0) {
-                        updateProgress(i, j, perStore);
-                        await new Promise(r => setTimeout(r, 1));
-                    }
-                }
-            }
-
-            extracting = false;
-            document.getElementById('extractBtn').classList.remove('hidden');
-            document.getElementById('stopBtn').classList.add('hidden');
-            
-            await updateStats();
-            await showAllProducts();
-            showSuccess('Extraction terminée !');
-        }
-
-        function updateProgress(storeIndex, current, total) {
-            const percent = (extractStats.current / extractStats.total * 100).toFixed(1);
-            document.getElementById('progressFill').style.width = percent + '%';
-            document.getElementById('progressPercent').textContent = percent + '%';
-            document.getElementById('progressText').textContent = 
-                `${extractStats.current} / ${extractStats.total}`;
-            
-            const storePercent = (current / total * 100).toFixed(1);
-            const el = document.getElementById(`store-${storeIndex}`);
-            if (el) el.style.width = storePercent + '%';
-            
-            document.getElementById('statProgress').textContent = percent + '%';
-            document.getElementById('statProducts').textContent = extractStats.current;
-            
-            const elapsed = (Date.now() - extractStats.start) / 1000;
-            const speed = Math.round(extractStats.current / (elapsed / 60));
-            document.getElementById('statSpeed').textContent = speed;
-        }
-
-        function stopExtraction() {
-            extracting = false;
-        }
-
-        async function clearDatabase() {
-            if (!confirm('Supprimer tous les produits ?')) return;
-            
-            const tx = db.transaction(['products'], 'readwrite');
-            const store = tx.objectStore('products');
-            store.clear();
-            
-            tx.oncomplete = () => {
-                updateStats();
-                document.getElementById('productsGrid').innerHTML = '';
-                document.getElementById('emptyState').classList.remove('hidden');
-                showSuccess('Base de données effacée');
-            };
-        }
-
-        async function updateStats() {
-            const products = await getAllProducts();
-            document.getElementById('statProducts').textContent = products.length;
-            document.getElementById('totalProductsHeader').textContent = products.length;
-        }
-
-        async function searchProducts() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const category = document.getElementById('categoryFilter').value;
-            const store = document.getElementById('storeFilter').value;
-            
-            let products = await getAllProducts();
-            
-            if (query) {
-                products = products.filter(p => p.name.toLowerCase().includes(query));
-            }
-            if (category) {
-                products = products.filter(p => p.category === category);
-            }
-            if (store) {
-                products = products.filter(p => p.store === store);
-            }
-            
-            displayProducts(products.slice(0, 100));
-        }
-
-        async function showAllProducts() {
-            const products = await getAllProducts();
-            displayProducts(products.slice(0, 100));
+            document.getElementById('total').textContent = allProducts.length;
+            displayProducts(allProducts);
         }
 
         function displayProducts(products) {
-            const grid = document.getElementById('productsGrid');
-            const empty = document.getElementById('emptyState');
-            
-            document.getElementById('resultCount').textContent = `(${products.length})`;
+            const grid = document.getElementById('products');
             
             if (products.length === 0) {
-                grid.innerHTML = '';
-                empty.classList.remove('hidden');
+                grid.innerHTML = '<p class="col-span-4 text-center text-gray-500 py-12">Aucun produit. Cliquez sur "Générer"</p>';
                 return;
             }
-            
-            empty.classList.add('hidden');
-            
-            const storeColors = {
-                'Carrefour': 'bg-blue-500', 'Leclerc': 'bg-red-500', 'Auchan': 'bg-orange-500',
-                'Intermarché': 'bg-green-600', 'Casino': 'bg-purple-500', 'Monoprix': 'bg-pink-500',
-                'Super U': 'bg-green-500', 'Lidl': 'bg-blue-700', 'Aldi': 'bg-blue-400'
-            };
-            
+
             grid.innerHTML = products.map(p => `
-                <div class="product-card bg-white rounded-xl shadow-lg p-4 cursor-pointer relative" onclick='viewProduct(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
-                    ${p.promo ? '<span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">PROMO</span>' : ''}
-                    <div class="${storeColors[p.store]} w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-lg mb-3 mx-auto">
+                <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
+                    <div class="bg-${p.color}-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl mb-3 mx-auto">
                         ${p.store[0]}
                     </div>
-                    <h3 class="font-bold text-gray-800 text-center mb-2">${p.name}</h3>
-                    <p class="text-xs text-gray-500 text-center mb-3">${p.category}</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xl font-bold text-green-600">${p.price.toFixed(2)}€</span>
-                        <span class="text-xs text-gray-500">${p.store}</span>
-                    </div>
+                    <h3 class="font-bold text-center mb-2">${p.name}</h3>
+                    <p class="text-2xl font-bold text-green-600 text-center">${p.price}€</p>
+                    <p class="text-xs text-gray-500 text-center mt-2">${p.store}</p>
                 </div>
             `).join('');
         }
 
-        async function viewProduct(product) {
-            const modal = document.getElementById('modal');
-            document.getElementById('modalTitle').textContent = product.name;
+        function filterProducts() {
+            const query = document.getElementById('search').value.toLowerCase();
             
-            const allProducts = await getAllProducts();
-            const similar = allProducts.filter(p => p.name === product.name);
-            const sorted = similar.sort((a, b) => a.price - b.price);
+            if (query === '') {
+                displayProducts(allProducts);
+                return;
+            }
+
+            const filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.store.toLowerCase().includes(query)
+            );
             
-            const storeColors = {
-                'Carrefour': 'bg-blue-500', 'Leclerc': 'bg-red-500', 'Auchan': 'bg-orange-500',
-                'Intermarché': 'bg-green-600', 'Casino': 'bg-purple-500', 'Monoprix': 'bg-pink-500',
-                'Super U': 'bg-green-500', 'Lidl': 'bg-blue-700', 'Aldi': 'bg-blue-400'
-            };
-            
-            document.getElementById('modalContent').innerHTML = `
-                <div class="mb-4">
-                    <p class="text-sm text-gray-500">Catégorie</p>
-                    <p class="font-bold text-gray-800">${product.category}</p>
-                </div>
-                
-                <h4 class="font-bold text-gray-800 mb-3">Comparaison (${sorted.length} magasins)</h4>
-                <div class="space-y-2">
-                    ${sorted.map((p, i) => `
-                        <div class="flex items-center justify-between p-3 ${i === 0 ? 'bg-green-50 border-2 border-green-500' : 'bg-gray-50'} rounded-lg">
-                            <div class="flex items-center gap-3">
-                                <div class="${storeColors[p.store]} w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold">
-                                    ${p.store[0]}
-                                </div>
-                                <div>
-                                    <p class="font-bold">${p.store}</p>
-                                    ${i === 0 ? '<p class="text-xs text-green-600">🏆 Meilleur prix</p>' : ''}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-xl font-bold ${i === 0 ? 'text-green-600' : 'text-gray-800'}">${p.price.toFixed(2)}€</p>
-                                ${i > 0 ? `<p class="text-xs text-red-600">+${(p.price - sorted[0].price).toFixed(2)}€</p>` : ''}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            
-            modal.classList.remove('hidden');
+            displayProducts(filtered);
         }
 
-        function closeModal() {
-            document.getElementById('modal').classList.add('hidden');
-        }
-
-        function showSuccess(msg) {
-            const div = document.createElement('div');
-            div.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
-            div.textContent = msg;
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
-        }
-
-        // Events
-        document.getElementById('extractBtn').addEventListener('click', startExtraction);
-        document.getElementById('stopBtn').addEventListener('click', stopExtraction);
-        document.getElementById('clearBtn').addEventListener('click', clearDatabase);
-        document.getElementById('searchBtn').addEventListener('click', searchProducts);
-        document.getElementById('showAllBtn').addEventListener('click', showAllProducts);
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchProducts();
-        });
-
-        // Init
-        initDB().then(() => {
-            updateStats();
-            getAllProducts().then(p => {
-                if (p.length > 0) showAllProducts();
-            });
-        });
+        // Auto-generate on load
+        window.onload = () => {
+            generateProducts();
+        };
     </script>
 </body>
 </html>
